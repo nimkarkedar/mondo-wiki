@@ -11,10 +11,6 @@ const literata = Literata({
 export const metadata: Metadata = {
   title: "mondo.wiki — Powered by The Gyaan Project",
   description: "Wisdom from 300+ conversations on design and art.",
-  icons: {
-    icon: "/mondo-favicon.png",
-    apple: "/mondo-favicon.png",
-  },
 };
 
 export default function RootLayout({
