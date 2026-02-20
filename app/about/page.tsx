@@ -64,44 +64,38 @@ export default function About() {
           <div>
             <p className="font-bold text-[18px] text-black mb-3">What is Mondo?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              Mondo is a fundamental practice in Zen Buddhism that translates to "The Way of Dialogue" or "question-and-answer" exchange. The term mondo is a dialogue between a Zen master (roshi) and a disciple (unsui). Zen values spontaneous dialogue as a primary method of transmitting insight.
+              Mondo is a fundamental practice in Zen Buddhism meaning "The Way of Dialogue" — a spontaneous question-and-answer exchange between a Zen master (roshi) and a disciple (unsui). In Zen, this form of live dialogue is considered one of the purest methods of transmitting insight.
             </p>
           </div>
 
           <div>
             <p className="font-bold text-[18px] text-black mb-3">What is Mondo.Wiki?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              Kedar Nimkar has recorded 300+ conversations with few of the best minds from the Indian creative world. He has documented over 50,000 minutes of conversations on his podcast The Gyaan Project. Mondo.wiki is an AI oracle bringing you a short answer and long answer from over conversations in Mondo style.
+              Mondo.Wiki is an AI oracle built on over 300 conversations that Kedar Nimkar has recorded with some of the finest minds from India&apos;s creative world, representing more than 50,000 minutes of dialogue from his podcast, The Gyaan Project. Ask it anything, and it responds in true Mondo spirit: a short answer and a long answer, drawn from those conversations.
             </p>
           </div>
 
           <div>
-            <p className="font-bold text-[18px] text-black mb-3">How does Mondo.wiki work?</p>
+            <p className="font-bold text-[18px] text-black mb-3">How does Mondo.Wiki work?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              Every transcript from The Gyaan Project is embedded into a vector database. When you ask a question, the most relevant passages are retrieved and passed to Claude which synthesises them into a Short and Long answer. No answer is pre-written. Every response is generated fresh, from the source.
+              Every transcript from The Gyaan Project is embedded into a vector database. When you ask a question, the most relevant passages are retrieved and passed to Claude, which synthesises them into a short and long answer. Nothing is pre-written. Every response is generated fresh, straight from the source.
             </p>
             <p className="text-[18px] text-black leading-relaxed mt-4 italic opacity-60">
-              It&apos;s prone to make mistakes.
+              It can make mistakes. Treat its answers as a starting point, not gospel.
             </p>
           </div>
 
           <div>
             <p className="font-bold text-[18px] text-black mb-3">What is The Gyaan Project?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              The Gyaan Project (formerly Audiogyan) is a podcast and YouTube channel dedicated to exploring creative wisdom. Since 2016, the platform has been chronicling ideas, philosophies, and stories of Indian luminaries. TGP serves as a contemporary creative archive — bridging the past with the present to inspire the future.
-            </p>
-            <p className="text-[18px] text-black leading-relaxed mt-4">
-              Hosted by Kedar Nimkar, the show features deep and wide-ranging conversations with designers, artists, musicians, writers, and thinkers. Its vision is to encourage a deeper understanding of design and art, and their impact on culture, climate, and individual lives.
+              The Gyaan Project (formerly Audiogyan) is a podcast and YouTube channel dedicated to exploring creative wisdom. Since 2016, it has been chronicling the ideas, philosophies, and stories of Indian luminaries: designers, artists, musicians, writers, and thinkers. Hosted by Kedar Nimkar, it functions as a contemporary creative archive, bridging the past with the present to inspire the future. At its heart, TGP is to deepen our understanding of design and art, and their impact on culture, climate, and individual lives.
             </p>
           </div>
 
           <div>
-            <p className="font-bold text-[18px] text-black mb-3">Who has created Mondo.wiki?</p>
+            <p className="font-bold text-[18px] text-black mb-3">Who created Mondo.Wiki?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              Kedar Nimkar is a seasoned design leader with over two decades of experience shaping India&apos;s digital landscape. He has held pivotal design leadership roles at Cleartrip, Jupiter, BookMyShow, and PropertyGuru in Singapore, where he has built innovative digital products that have reached millions of users.
-            </p>
-            <p className="text-[18px] text-black leading-relaxed mt-4">
-              Beyond corporate achievements, he is deeply rooted in India&apos;s creative ecosystem as an educator, public speaker, and curator. A Mumbai native now based in Singapore, Kedar brings a distinctive voice to the global design community.
+              Kedar Nimkar is a design leader with over two decades of experience shaping India&apos;s digital landscape. He has held senior roles at Cleartrip, Jupiter, BookMyShow, and PropertyGuru in Singapore, building products that have reached millions of users. Beyond his corporate work, Kedar is deeply embedded in India&apos;s creative ecosystem as an educator, speaker, and curator. A Mumbai native now based in Singapore, he brings a distinctive voice to the global design community.
             </p>
           </div>
 
