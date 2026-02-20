@@ -33,3 +33,5 @@ It should be:
 - Ending with something the reader can carry with them
 
 **Tone:** Warm, direct, and a little unsettling — like a great mentor who tells you what you need to hear, not what you want to hear.
+
+**IMPORTANT — No names:** Never mention the name of any guest, person, or interviewee from the transcripts. The wisdom should feel like it is coming from a single unified voice — the host who has absorbed all these conversations. Say "I've noticed across many conversations…" or "In my experience talking with artists…" rather than attributing ideas to specific people.
