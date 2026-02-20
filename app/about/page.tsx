@@ -14,7 +14,6 @@ export default function About() {
           animation: "orangeFlow 12s ease infinite",
         }}
       >
-        {/* Logo */}
         <div className="mb-10">
           <Link href="/">
             <Image
@@ -49,7 +48,6 @@ export default function About() {
 
         <div className="hidden md:flex flex-1" />
 
-        {/* Back button */}
         <Link
           href="/"
           className="hidden md:inline-flex items-center gap-2 text-black text-sm underline mt-10"
@@ -63,47 +61,47 @@ export default function About() {
 
         <div className="flex flex-col gap-10 max-w-xl">
 
-          {/* What is this */}
           <div>
-            <p className="font-bold text-[18px] text-black mb-3">What is mondo.wiki?</p>
+            <p className="font-bold text-[18px] text-black mb-3">What is Mondo?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              mondo.wiki is an AI oracle built on the wisdom of The Gyaan Project — a podcast of conversations with artists, designers, filmmakers, educators, and creative thinkers from across India and the world.
-            </p>
-            <p className="text-[18px] text-black leading-relaxed mt-4">
-              Ask any question about design or art. Get an answer distilled from over a decade of conversations — short enough to stop you in your tracks, long enough to stay with you.
+              Mondo is a fundamental practice in Zen Buddhism that translates to "The Way of Dialogue" or "question-and-answer" exchange. The term mondo is a dialogue between a Zen master (roshi) and a disciple (unsui). Zen values spontaneous dialogue as a primary method of transmitting insight.
             </p>
           </div>
 
-          {/* The Koan */}
           <div>
-            <p className="font-bold text-[18px] text-black mb-3">Why a Koan?</p>
+            <p className="font-bold text-[18px] text-black mb-3">What is Mondo.Wiki?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              In the Mondo school of Zen Buddhism, a Koan is a question or statement that cannot be answered by rational thinking alone. It is designed to provoke, to unsettle, to open a door.
-            </p>
-            <p className="text-[18px] text-black leading-relaxed mt-4">
-              Every answer on mondo.wiki begins with a Koan — 2 to 5 words that reframe your question in a way you didn't expect. The longer answer follows, but the Koan is the seed.
+              Kedar Nimkar has recorded 300+ conversations with few of the best minds from the Indian creative world. He has documented over 50,000 minutes of conversations on his podcast The Gyaan Project. Mondo.wiki is an AI oracle bringing you a short answer and long answer from over conversations in Mondo style.
             </p>
           </div>
 
-          {/* The Gyaan Project */}
           <div>
-            <p className="font-bold text-[18px] text-black mb-3">The Gyaan Project</p>
+            <p className="font-bold text-[18px] text-black mb-3">How does Mondo.wiki work?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              Since 2016, The Gyaan Project has recorded 300+ conversations with some of the most interesting creative minds — asking not just what they make, but how and why they think the way they do.
+              Every transcript from The Gyaan Project is embedded into a vector database. When you ask a question, the most relevant passages are retrieved and passed to Claude which synthesises them into a Short and Long answer. No answer is pre-written. Every response is generated fresh, from the source.
             </p>
-            <p className="text-[18px] text-black leading-relaxed mt-4">
-              mondo.wiki is the distillation of that archive — not a search engine, but a wisdom engine. The answers are not quotes. They are the collective voice of everyone who ever sat across from that microphone.
+            <p className="text-[18px] text-black leading-relaxed mt-4 italic opacity-60">
+              It&apos;s prone to make mistakes.
             </p>
           </div>
 
-          {/* How it works */}
           <div>
-            <p className="font-bold text-[18px] text-black mb-3">How it works</p>
+            <p className="font-bold text-[18px] text-black mb-3">What is The Gyaan Project?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              Every transcript from The Gyaan Project is embedded into a vector database. When you ask a question, the most relevant passages are retrieved and passed to Claude — Anthropic's AI — which synthesises them into a Koan and a detailed answer.
+              The Gyaan Project (formerly Audiogyan) is a podcast and YouTube channel dedicated to exploring creative wisdom. Since 2016, the platform has been chronicling ideas, philosophies, and stories of Indian luminaries. TGP serves as a contemporary creative archive — bridging the past with the present to inspire the future.
             </p>
             <p className="text-[18px] text-black leading-relaxed mt-4">
-              No answer is pre-written. Every response is generated fresh, from the source.
+              Hosted by Kedar Nimkar, the show features deep and wide-ranging conversations with designers, artists, musicians, writers, and thinkers. Its vision is to encourage a deeper understanding of design and art, and their impact on culture, climate, and individual lives.
+            </p>
+          </div>
+
+          <div>
+            <p className="font-bold text-[18px] text-black mb-3">Who has created Mondo.wiki?</p>
+            <p className="text-[18px] text-black leading-relaxed">
+              Kedar Nimkar is a seasoned design leader with over two decades of experience shaping India&apos;s digital landscape. He has held pivotal design leadership roles at Cleartrip, Jupiter, BookMyShow, and PropertyGuru in Singapore, where he has built innovative digital products that have reached millions of users.
+            </p>
+            <p className="text-[18px] text-black leading-relaxed mt-4">
+              Beyond corporate achievements, he is deeply rooted in India&apos;s creative ecosystem as an educator, public speaker, and curator. A Mumbai native now based in Singapore, Kedar brings a distinctive voice to the global design community.
             </p>
           </div>
 
