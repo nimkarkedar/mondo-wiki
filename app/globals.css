@@ -12,7 +12,7 @@
 }
 
 body {
-  background: var(--background);
+  background: #f5f2ee;
   color: var(--foreground);
   font-family: "New York", var(--font-literata), Georgia, serif;
 }

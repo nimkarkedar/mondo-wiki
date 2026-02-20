@@ -3,11 +3,12 @@ import Link from "next/link";
 
 export default function About() {
   return (
-    <div className="flex flex-col md:flex-row min-h-screen w-screen">
+    <div className="min-h-screen w-screen flex items-start md:items-center justify-center p-0 md:p-8">
+    <div className="flex flex-col md:flex-row w-full md:max-w-[1200px] md:rounded-2xl md:overflow-hidden md:shadow-2xl min-h-screen md:min-h-0 md:h-[88vh]">
 
       {/* ── Orange Pane ── */}
       <div
-        className="w-full md:w-[50%] md:h-screen md:sticky md:top-0 flex flex-col px-8 md:px-10 py-10"
+        className="w-full md:w-[50%] md:h-full flex flex-col px-8 md:px-10 py-10"
         style={{
           background: "linear-gradient(135deg, #ff9a3c 0%, #ff6900 35%, #e85000 65%, #ff7a10 100%)",
           backgroundSize: "300% 300%",
@@ -112,6 +113,7 @@ export default function About() {
         </div>
 
       </div>
+    </div>
     </div>
   );
 }
