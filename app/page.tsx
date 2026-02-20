@@ -162,6 +162,9 @@ export default function Home() {
           <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight">
             Ask any question on design and art
           </h1>
+          <p className="text-white text-lg leading-snug">
+            Answers will be fetched by AI (Claude) from all my 300+ conversations on The Gyaan Project Podcast.
+          </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-1">
             {/* Input with typewriter placeholder */}
