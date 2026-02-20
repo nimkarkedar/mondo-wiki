@@ -11,6 +11,26 @@ const literata = Literata({
 export const metadata: Metadata = {
   title: "mondo.wiki — Powered by The Gyaan Project",
   description: "Wisdom from 300+ conversations on design and art.",
+  openGraph: {
+    title: "mondo.wiki — Powered by The Gyaan Project",
+    description: "Wisdom from 300+ conversations on design and art.",
+    url: "https://mondowiki.vercel.app",
+    siteName: "mondo.wiki",
+    images: [
+      {
+        url: "https://mondowiki.vercel.app/meta-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "mondo.wiki — Powered by The Gyaan Project",
+    description: "Wisdom from 300+ conversations on design and art.",
+    images: ["https://mondowiki.vercel.app/meta-image.png"],
+  },
 };
 
 export default function RootLayout({

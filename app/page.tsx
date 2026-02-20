@@ -32,6 +32,7 @@ export default function Home() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState<"makes_sense" | "doesnt_make_sense" | null>(null);
 
   const [typedText, setTypedText] = useState("");
   const [loadingLabel, setLoadingLabel] = useState("");
@@ -94,6 +95,7 @@ export default function Home() {
     if (!question.trim()) return;
     setLoading(true);
     setAnswer(null);
+    setFeedback(null);
     setLoadingLabel(LOADING_LABELS[Math.floor(Math.random() * LOADING_LABELS.length)]);
     loadingTimerRef.current = setInterval(() => {
       setLoadingLabel(LOADING_LABELS[Math.floor(Math.random() * LOADING_LABELS.length)]);
@@ -120,6 +122,21 @@ export default function Home() {
     }
   }
 
+  async function sendFeedback(rating: "makes_sense" | "doesnt_make_sense") {
+    if (!answer || feedback) return;
+    setFeedback(rating);
+    await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question,
+        short_answer: answer.short,
+        long_answer: answer.long,
+        rating,
+      }),
+    });
+  }
+
   return (
     <div className="min-h-screen w-screen flex items-start md:items-center justify-center p-0 md:p-8">
     <div className="flex flex-col md:flex-row w-full md:max-w-[1200px] md:rounded-2xl md:overflow-hidden md:shadow-2xl min-h-screen md:min-h-0 md:h-[88vh]">
@@ -134,17 +151,22 @@ export default function Home() {
         }}
       >
 
-        {/* Logo + tagline */}
+        {/* Logo + tagline + About */}
         <div className="mb-8 md:mb-10">
-          <Link href="/">
-            <Image
-              src="/mondo-wiki-logo.svg"
-              alt="MONDO.WIKI"
-              width={210}
-              height={58}
-              priority
-            />
-          </Link>
+          <div className="flex items-start justify-between">
+            <Link href="/">
+              <Image
+                src="/mondo-wiki-logo.svg"
+                alt="MONDO.WIKI"
+                width={210}
+                height={58}
+                priority
+              />
+            </Link>
+            <a href="/about" className="text-white font-semibold text-base mt-2">
+              About
+            </a>
+          </div>
           <p className="text-black text-sm mt-2">
             Powered by{" "}
             <a
@@ -164,7 +186,7 @@ export default function Home() {
             Ask any question on design and art
           </h1>
           <p className="text-white text-lg leading-snug">
-            Answers are fetched from The Gyaan Project's 300+ conversations.
+            Answers are fetched from The Gyaan Project&apos;s 300+ conversations using AI. It can make mistakes.
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-1">
@@ -174,8 +196,23 @@ export default function Home() {
                 type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                className="w-full rounded-lg px-5 py-5 text-black text-base bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full rounded-lg px-5 py-5 pr-12 text-black text-base bg-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-0"
               />
+              {/* Clear button — shown when user has typed */}
+              {question && (
+                <button
+                  type="button"
+                  onClick={() => { setQuestion(""); setAnswer(null); setFeedback(null); }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label="Clear"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="12" fill="black" />
+                    <line x1="7.5" y1="7.5" x2="16.5" y2="16.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                    <line x1="16.5" y1="7.5" x2="7.5" y2="16.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                  </svg>
+                </button>
+              )}
               {/* Fake animated placeholder — hidden when user has typed */}
               {!question && (
                 <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-base pointer-events-none select-none">
@@ -204,7 +241,7 @@ export default function Home() {
 
         <div className="hidden md:flex flex-1" />
 
-        <p className="hidden md:block text-black text-xs opacity-60 mt-10">
+        <p className="text-black text-xs opacity-60 mt-10">
           © 2026 The Gyaan Project. All rights reserved.
         </p>
       </div>
@@ -225,7 +262,7 @@ export default function Home() {
         )}
 
         {answer && !loading && (
-          <div className="flex flex-col gap-7 max-w-xl">
+          <div className="flex flex-col gap-7 max-w-xl answer-reveal">
             <div>
               <p className="font-bold text-[18px] text-black">In short</p>
               <p className="text-[18px] font-normal text-black leading-snug mt-1">
@@ -242,17 +279,31 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Feedback */}
+            <div className="flex items-center gap-3 pt-2">
+              {feedback ? (
+                <p className="text-sm text-gray-400">Thanks for the feedback.</p>
+              ) : (
+                <>
+                  <button
+                    onClick={() => sendFeedback("makes_sense")}
+                    className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
+                  >
+                    👍 Makes sense
+                  </button>
+                  <button
+                    onClick={() => sendFeedback("doesnt_make_sense")}
+                    className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
+                  >
+                    👎 Doesn&apos;t make sense
+                  </button>
+                </>
+              )}
+            </div>
+
           </div>
         )}
 
-        <div className="mt-auto pt-10 flex items-center justify-between md:justify-end">
-          <p className="md:hidden text-black text-xs opacity-60">
-            © 2026 The Gyaan Project. All rights reserved.
-          </p>
-          <a href="/about" className="text-black underline text-sm">
-            About
-          </a>
-        </div>
       </div>
 
     </div>

@@ -24,6 +24,16 @@ body {
   100% { background-position: 0% 50%; }
 }
 
+/* ── Answer reveal animation ── */
+@keyframes answerReveal {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.answer-reveal {
+  animation: answerReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* ── Typewriter cursor blink ── */
 @keyframes blink {
   0%, 100% { opacity: 1; }
