@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const PLACEHOLDERS = [
   "How do I find my voice as a designer?",
@@ -134,13 +135,15 @@ export default function Home() {
 
         {/* Logo + tagline */}
         <div className="mb-8 md:mb-10">
-          <Image
-            src="/mondo-wiki-logo.svg"
-            alt="MONDO.WIKI"
-            width={210}
-            height={58}
-            priority
-          />
+          <Link href="/">
+            <Image
+              src="/mondo-wiki-logo.svg"
+              alt="MONDO.WIKI"
+              width={210}
+              height={58}
+              priority
+            />
+          </Link>
           <p className="text-black text-sm mt-2">
             Powered by{" "}
             <a
