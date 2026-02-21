@@ -56,13 +56,6 @@ export default function About() {
         <div className="flex flex-col gap-10 pr-8 md:pr-16">
 
           <div>
-            <p className="font-bold text-[18px] text-black mb-3">What is Mondo?</p>
-            <p className="text-[18px] text-black leading-relaxed">
-              Mondo is a fundamental practice in Zen Buddhism meaning "The Way of Dialogue" — a spontaneous question-and-answer exchange between a Zen master (roshi) and a disciple (unsui). In Zen, this form of live dialogue is considered one of the purest methods of transmitting insight.
-            </p>
-          </div>
-
-          <div>
             <p className="font-bold text-[18px] text-black mb-3">What is Ask TGP?</p>
             <p className="text-[18px] text-black leading-relaxed">
               Ask TGP is an AI oracle built on over 300 conversations that Kedar Nimkar has recorded with some of the finest minds from India&apos;s creative world, representing more than 50,000 minutes of dialogue from his podcast, The Gyaan Project. Ask it anything, and it responds in true Mondo spirit: a short answer and a long answer, drawn from those conversations.
