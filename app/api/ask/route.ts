@@ -71,7 +71,7 @@ const FUN_URLS = [
   "https://www.youtube.com/watch?v=tLt5rBfNucc",  // Sneezing Panda
 ];
 
-function buildSystemPrompt(context: string, episodeTitles: string[]): string {
+function buildSystemPrompt(context: string, episodeTitles: string[], allowNeedsContext: boolean): string {
   const promptPath = path.join(process.cwd(), "PROMPT.md");
   const promptDoc = fs.readFileSync(promptPath, "utf-8");
 
@@ -87,10 +87,10 @@ In the "references" array, include each name exactly as listed above, and pair i
 IMPORTANT: First, judge whether this question is genuinely about design, art, creativity, or creative practice. If it is completely unrelated (e.g. sports, cooking, finance, politics, science, math), respond ONLY with:
 { "outOfSyllabus": true }
 
-AMBIGUOUS QUESTIONS: If the question is about design or art but too vague to answer meaningfully without more context (e.g. "Should I do online or offline course?", "Which tool is better?", "How do I start?"), respond ONLY with:
-{ "needsContext": true, "hint": "A one-sentence friendly suggestion asking them to add design or art context to their question." }
+${allowNeedsContext ? `AMBIGUOUS QUESTIONS: If the question has no design or art keywords and is too vague to answer (e.g. "Which is better?", "How do I start?", "What should I choose?"), respond ONLY with:
+{ "needsContext": true, "hint": "A one-sentence friendly suggestion asking them to specify the design or art context." }
 
-Otherwise, when a user asks a question about design or art, respond in two parts. Use the guidelines below (from PROMPT.md) to shape your response.
+Otherwise, when` : `When`} a user asks a question about design or art, respond in two parts. Use the guidelines below (from PROMPT.md) to shape your response.
 
 ---
 ${promptDoc}
@@ -130,6 +130,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const hasDesignContext = /design|art|architect|creative|creativity|craft|typography|illustration|photography|film|music|theatre|dance|paint|sculpt|brand|ux|ui/i.test(question);
+
     // Search for relevant transcript chunks
     const chunks = await getRelevantChunks(question);
 
@@ -148,7 +150,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 800,
-      system: buildSystemPrompt(context, episodeTitles),
+      system: buildSystemPrompt(context, episodeTitles, !hasDesignContext),
       messages: [{ role: "user", content: `Question: ${question.trim()}` }],
     });
 
@@ -181,9 +183,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // If the question already contains design/art keywords, never ask for more context — just answer
-    const hasDesignContext = /design|art|creative|creativity|craft|architect|typography|illustration|photography|film|music|theatre|dance/i.test(question);
-    if (parsed.needsContext && !hasDesignContext) {
+    if (parsed.needsContext) {
       return NextResponse.json({ needsContext: true, hint: parsed.hint ?? "Try adding 'design' or 'art' to your question for a more focused answer." });
     }
 
