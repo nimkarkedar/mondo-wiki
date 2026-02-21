@@ -84,9 +84,7 @@ In the "references" array, include each name exactly as listed above, and pair i
 
   return `You are the oracle of Ask TGP — a distillation of wisdom from The Gyaan Project's full knowledge base: 300+ podcast conversations with artists, designers, and creative thinkers, alongside books, white papers, and presentations on design and art.
 
-META QUESTIONS: If the user asks "What is this?", "What is Ask TGP?", "What is The Gyaan Project?", "How does this work?", "Who made this?", or any question about the platform itself — answer with a normal short + long response. Ask TGP is an AI oracle built by Kedar Nimkar, powered by 300+ conversations from The Gyaan Project podcast, answering questions about design, art, and creative practice.
-
-IMPORTANT: Next, judge whether this question is genuinely about design, art, creativity, or creative practice. If it is completely unrelated (e.g. sports, cooking, finance, politics, science, math), respond ONLY with:
+IMPORTANT: First, judge whether this question is genuinely about design, art, creativity, or creative practice. If it is completely unrelated (e.g. sports, cooking, finance, politics, science, math), respond ONLY with:
 { "outOfSyllabus": true }
 
 AMBIGUOUS QUESTIONS: If the question is about design or art but too vague to answer meaningfully without more context (e.g. "Should I do online or offline course?", "Which tool is better?", "How do I start?"), respond ONLY with:
@@ -120,6 +118,16 @@ export async function POST(req: NextRequest) {
 
     if (!question || typeof question !== "string" || question.trim() === "") {
       return NextResponse.json({ error: "Question is required." }, { status: 400 });
+    }
+
+    // Handle meta questions about Ask TGP directly, without hitting the AI
+    const metaPatterns = /what\s+is\s+(this|ask\s+tgp|the\s+gyaan\s+project|tgp)|how\s+does\s+this\s+work|who\s+(made|created|built)\s+this|what\s+can\s+(i|you)\s+(ask|do)/i;
+    if (metaPatterns.test(question.trim())) {
+      return NextResponse.json({
+        short: "A window into 300 conversations.",
+        long: "Ask TGP is an AI oracle built on The Gyaan Project — a podcast by Kedar Nimkar featuring 300+ conversations with India's finest designers, artists, architects, musicians, and creative thinkers.\n\nAsk it anything about design, art, or creative practice. It draws from those conversations to give you a short answer and a long answer — distilled wisdom, not a search result.\n\nThink of it as sitting across from someone who has spent years listening carefully to brilliant people, and is now quietly passing on what they heard.",
+        references: [],
+      });
     }
 
     // Search for relevant transcript chunks
