@@ -35,7 +35,7 @@ export default function Home() {
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<"makes_sense" | "doesnt_make_sense" | null>(null);
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState(false);
 
   const [typedText, setTypedText] = useState("");
   const [loadingLabel, setLoadingLabel] = useState("");
@@ -130,23 +130,40 @@ export default function Home() {
     return `Q: ${question}\n\nIn short: ${answer.short}\n\nIn detail: ${answer.long}`;
   }
 
-  function showToast(msg: string) {
-    setToast(msg);
-    setTimeout(() => setToast(""), 2200);
+  function showToast() {
+    setToast(false);
+    // Force re-mount so animation restarts if clicked again
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setToast(true);
+        setTimeout(() => setToast(false), 8000);
+      });
+    });
   }
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(getAnswerText());
-    showToast("Copied to clipboard");
+    try {
+      await navigator.clipboard.writeText(getAnswerText());
+      showToast();
+    } catch {
+      // Fallback for browsers that block clipboard without user gesture
+      const el = document.createElement("textarea");
+      el.value = getAnswerText();
+      el.style.position = "fixed";
+      el.style.opacity = "0";
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      showToast();
+    }
   }
 
   async function handleShare() {
-    const text = getAnswerText();
     if (navigator.share) {
-      await navigator.share({ text });
+      try { await navigator.share({ text: getAnswerText() }); } catch { /* cancelled */ }
     } else {
-      await navigator.clipboard.writeText(text);
-      showToast("Copied to clipboard");
+      await handleCopy();
     }
   }
 
@@ -275,16 +292,16 @@ export default function Home() {
       </div>
 
       {/* ── White Pane ── */}
-      <div className="relative w-full md:w-[50%] bg-white flex flex-col px-8 md:px-14 py-10 min-h-[50vh] md:min-h-0 overflow-y-auto">
+      <div className="relative w-full md:w-[50%] bg-white flex flex-col min-h-[50vh] md:min-h-0">
 
-        {/* Copy + Share buttons */}
+        {/* Copy + Share buttons — sit on top of the pane, outside scroll */}
         {answer && !loading && !answer.outOfSyllabus && (
-          <div className="absolute top-8 right-8 md:right-10 flex items-center gap-2">
+          <div className="absolute top-8 right-8 md:right-10 flex items-center gap-1 z-10">
             {/* Copy */}
             <button
               onClick={handleCopy}
               title="Copy answer"
-              className="p-2 rounded-lg text-gray-400 hover:text-black hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-black/40 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
@@ -295,7 +312,7 @@ export default function Home() {
             <button
               onClick={handleShare}
               title="Share answer"
-              className="p-2 rounded-lg text-gray-400 hover:text-black hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-black/40 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="18" cy="5" r="3" />
@@ -308,94 +325,101 @@ export default function Home() {
           </div>
         )}
 
-        {!answer && !loading && (
-          <div className="flex-1 flex items-center justify-center text-gray-300 text-lg select-none py-16 md:py-0">
-            Your answer will appear here.
-          </div>
-        )}
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto px-8 md:px-14 py-10 flex flex-col">
 
-        {loading && (
-          <div className="flex-1 flex items-center justify-center text-gray-400 text-base animate-pulse py-16 md:py-0">
-            Distilling wisdom…
-          </div>
-        )}
-
-        {answer && !loading && (
-          answer.outOfSyllabus ? (
-            <div key="out-of-syllabus" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-5 max-w-xl">
-              <p className="text-4xl">🙃</p>
-              <p className="text-black text-[18px] font-bold leading-snug">
-                This question is out of syllabus.
-              </p>
-              <p className="text-gray-500 text-base leading-relaxed">
-                Our oracle only speaks design and art. Your question has wandered somewhere the archive has never been.
-              </p>
-              <a
-                href={answer.funUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-base font-semibold underline text-black hover:text-gray-600 transition-colors"
-              >
-                Have Fun →
-              </a>
+          {!answer && !loading && (
+            <div className="flex-1 flex items-center justify-center text-gray-300 text-lg select-none py-16 md:py-0">
+              Your answer will appear here.
             </div>
-          ) : (
-          <div key={answer.short} className="flex flex-col gap-7 max-w-xl">
-            <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }}>
-              <p className="font-bold text-[18px] text-black">In short</p>
-              <p className="text-[18px] font-normal text-black leading-snug mt-1">
-                {answer.short}
-              </p>
-            </div>
+          )}
 
-            <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 160ms forwards" }}>
-              <p className="font-bold text-[18px] text-black mb-3">In detail</p>
-              <div className="text-black text-[18px] font-normal leading-relaxed space-y-5">
-                {answer.long.split("\n\n").map((para, i) => (
-                  <p key={i}>{para}</p>
-                ))}
+          {loading && (
+            <div className="flex-1 flex items-center justify-center text-gray-400 text-base animate-pulse py-16 md:py-0">
+              Distilling wisdom…
+            </div>
+          )}
+
+          {answer && !loading && (
+            answer.outOfSyllabus ? (
+              <div key="out-of-syllabus" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-5 max-w-xl">
+                <p className="text-4xl">🙃</p>
+                <p className="text-black text-[18px] font-bold leading-snug">
+                  This question is out of syllabus.
+                </p>
+                <p className="text-gray-500 text-base leading-relaxed">
+                  Our oracle only speaks design and art. Your question has wandered somewhere the archive has never been.
+                </p>
+                <a
+                  href={answer.funUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-base font-semibold underline text-black hover:text-gray-600 transition-colors"
+                >
+                  Have Fun →
+                </a>
               </div>
-            </div>
+            ) : (
+              <div key={answer.short} className="flex flex-col gap-7 max-w-xl">
+                <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }}>
+                  <p className="font-bold text-[18px] text-black">In short</p>
+                  <p className="text-[18px] font-normal text-black leading-snug mt-1">
+                    {answer.short}
+                  </p>
+                </div>
 
-            {/* Feedback */}
-            <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 300ms forwards" }} className="flex items-center gap-3 pt-2">
-              {feedback ? (
-                <p className="text-sm text-gray-400">Thanks for the feedback.</p>
-              ) : (
-                <>
-                  <button
-                    onClick={() => sendFeedback("makes_sense")}
-                    className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
-                  >
-                    👍 Makes sense
-                  </button>
-                  <button
-                    onClick={() => sendFeedback("doesnt_make_sense")}
-                    className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
-                  >
-                    👎 Doesn&apos;t make sense
-                  </button>
-                </>
-              )}
-            </div>
+                <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 160ms forwards" }}>
+                  <p className="font-bold text-[18px] text-black mb-3">In detail</p>
+                  <div className="text-black text-[18px] font-normal leading-relaxed space-y-5">
+                    {answer.long.split("\n\n").map((para, i) => (
+                      <p key={i}>{para}</p>
+                    ))}
+                  </div>
+                </div>
 
-          </div>
-          )
-        )}
+                {/* Feedback */}
+                <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 300ms forwards" }} className="flex items-center gap-3 pt-2">
+                  {feedback ? (
+                    <p className="text-sm text-gray-400">Thanks for the feedback.</p>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => sendFeedback("makes_sense")}
+                        className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
+                      >
+                        👍 Makes sense
+                      </button>
+                      <button
+                        onClick={() => sendFeedback("doesnt_make_sense")}
+                        className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
+                      >
+                        👎 Doesn&apos;t make sense
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )
+          )}
 
-        <p className="md:hidden text-black text-xs opacity-60 mt-10 pb-4">
-          © 2026 The Gyaan Project. All rights reserved.
-        </p>
+          <p className="md:hidden text-black text-xs opacity-60 mt-10 pb-4">
+            © 2026 The Gyaan Project. All rights reserved.
+          </p>
 
-        {/* Toast */}
+        </div>{/* end scrollable */}
+
+        {/* Toast — pinned to bottom of pane, never scrolls away */}
         {toast && (
-          <div
-            style={{ animation: "toastIn 0.2s ease forwards" }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-sm px-4 py-2 rounded-full shadow-lg pointer-events-none z-50"
-          >
-            {toast}
+          <div className="absolute bottom-6 left-0 right-0 flex justify-center px-8 pointer-events-none">
+            <div
+              style={{ animation: "toastShow 8s ease forwards" }}
+              className="bg-black text-white text-sm px-5 py-2.5 rounded-full shadow-lg"
+            >
+              Copied to clipboard
+            </div>
           </div>
         )}
+
       </div>
 
     </div>

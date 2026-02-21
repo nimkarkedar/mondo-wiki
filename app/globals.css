@@ -30,10 +30,12 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Toast pop-in ── */
-@keyframes toastIn {
-  from { opacity: 0; transform: translate(-50%, 8px); }
-  to   { opacity: 1; transform: translate(-50%, 0); }
+/* ── Toast: slide up, hold, fade out over 8 s ── */
+@keyframes toastShow {
+  0%   { opacity: 0; transform: translateY(10px); }
+  6%   { opacity: 1; transform: translateY(0);    }
+  82%  { opacity: 1; transform: translateY(0);    }
+  100% { opacity: 0; transform: translateY(4px);  }
 }
 
 /* ── Typewriter cursor blink ── */
