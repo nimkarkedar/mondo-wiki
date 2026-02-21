@@ -58,7 +58,7 @@ export default function About() {
           <div>
             <p className="font-bold text-[18px] text-black mb-3">What is Ask TGP?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              Ask TGP is an AI oracle built on over 300 conversations that Kedar Nimkar has recorded with some of the finest minds from India&apos;s creative world, representing more than 50,000 minutes of dialogue from his podcast, The Gyaan Project. Ask it anything, and it responds in true Mondo spirit: a short answer and a long answer, drawn from those conversations.
+              Ask TGP is an AI oracle built on over 300 conversations that Kedar Nimkar has recorded with some of the finest minds from India&apos;s creative world, representing more than 50,000 minutes of dialogue from his podcast, The Gyaan Project. Ask it anything, and it responds with a short answer and a long answer, drawn from those conversations.
             </p>
           </div>
 
