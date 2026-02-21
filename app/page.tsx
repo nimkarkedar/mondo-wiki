@@ -225,7 +225,7 @@ export default function Home() {
 
         {/* Form area */}
         <div className="flex flex-col gap-5">
-          <h1 className="text-white text-4xl md:text-5xl font-bold leading-tight">
+          <h1 className="text-white text-4xl md:text-5xl font-bold leading-[1.1]">
             Ask any question on design and art
           </h1>
           <p className="text-white text-lg leading-snug">
