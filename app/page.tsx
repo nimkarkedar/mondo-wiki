@@ -362,14 +362,14 @@ export default function Home() {
             ) : (
               <div key={answer.short} className="flex flex-col gap-7 max-w-xl">
                 <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }}>
-                  <p className="font-bold text-[18px] text-black">In short</p>
+                  <p className="font-bold text-[18px] text-black">Short answer:</p>
                   <p className="text-[18px] font-normal text-black leading-snug mt-1">
                     {answer.short}
                   </p>
                 </div>
 
                 <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 160ms forwards" }}>
-                  <p className="font-bold text-[18px] text-black mb-3">In detail</p>
+                  <p className="font-bold text-[18px] text-black mb-3">Long answer:</p>
                   <div className="text-black text-[18px] font-normal leading-relaxed space-y-5">
                     {answer.long.split("\n\n").map((para, i) => (
                       <p key={i}>{para}</p>
