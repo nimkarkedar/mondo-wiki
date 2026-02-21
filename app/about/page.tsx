@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function About() {
   return (
-    <div className="min-h-screen w-screen flex items-start md:items-center justify-center p-0 md:p-8">
+    <div className="min-h-screen w-screen flex flex-col items-center justify-start md:justify-center p-0 md:p-8 md:gap-4 pb-8 md:pb-0">
     <div className="flex flex-col md:flex-row w-full md:max-w-[1200px] md:rounded-2xl md:overflow-hidden md:shadow-2xl min-h-screen md:min-h-0 md:h-[88vh]">
 
       {/* ── Orange Pane ── */}
@@ -115,15 +115,11 @@ export default function About() {
 
         </div>
 
-        {/* Footer */}
-        <div className="mt-auto pt-10">
-          <p className="text-black text-xs opacity-60">
-            © 2026 The Gyaan Project. All rights reserved.
-          </p>
-        </div>
-
       </div>
     </div>
+    <p className="text-xs text-black/40 text-center px-8 md:px-0">
+      © 2026 The Gyaan Project. All rights reserved.
+    </p>
     </div>
   );
 }
