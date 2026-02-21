@@ -24,8 +24,29 @@ async function embedQuestion(question: string): Promise<number[]> {
   return data.data[0].embedding;
 }
 
+// Extract a proper person name from the question (e.g. "Rupali Gupte")
+function extractPersonName(question: string): string | null {
+  const matches = question.match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+\b/g);
+  return matches ? matches[0] : null;
+}
+
 async function getRelevantChunks(question: string) {
   const embedding = await embedQuestion(question);
+
+  // Check if question names a specific person — if so, pull their chunks directly
+  const personName = extractPersonName(question);
+  if (personName) {
+    const { data: personChunks } = await supabase
+      .from("transcript_chunks")
+      .select("episode_title, content")
+      .ilike("episode_title", `%${personName}%`)
+      .order("chunk_index")
+      .limit(4);
+
+    if (personChunks && personChunks.length > 0) {
+      return personChunks;
+    }
+  }
 
   const { data, error } = await supabase.rpc("match_chunks", {
     query_embedding: embedding,
