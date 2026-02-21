@@ -183,7 +183,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen w-screen flex items-start md:items-center justify-center p-0 md:p-8">
+    <div className="min-h-screen w-screen flex flex-col items-center justify-start md:justify-center p-0 md:p-8 md:gap-4">
     <div className="flex flex-col md:flex-row w-full md:max-w-[1200px] md:rounded-2xl md:overflow-hidden md:shadow-2xl min-h-screen md:min-h-0 md:h-[88vh]">
 
       {/* ── Orange Pane ── */}
@@ -286,9 +286,6 @@ export default function Home() {
 
         <div className="hidden md:flex flex-1" />
 
-        <p className="hidden md:block text-black text-xs opacity-60 mt-10">
-          © 2026 The Gyaan Project. All rights reserved.
-        </p>
       </div>
 
       {/* ── White Pane ── */}
@@ -402,10 +399,6 @@ export default function Home() {
             )
           )}
 
-          <p className="md:hidden text-black text-xs opacity-60 mt-10 pb-4">
-            © 2026 The Gyaan Project. All rights reserved.
-          </p>
-
         </div>{/* end scrollable */}
 
         {/* Toast — pinned to bottom of pane, never scrolls away */}
@@ -423,6 +416,9 @@ export default function Home() {
       </div>
 
     </div>
+    <p className="hidden md:block text-xs text-black/40 text-center">
+      © 2026 The Gyaan Project. All rights reserved.
+    </p>
     </div>
   );
 }
