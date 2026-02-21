@@ -41,8 +41,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" type="image/png" href="/mondo-favicon.png" />
-        <link rel="apple-touch-icon" href="/mondo-favicon.png" />
+        <link rel="icon" type="image/png" href="/asktgp-favicon.png" />
+        <link rel="apple-touch-icon" href="/asktgp-favicon.png" />
       </head>
       <body className={`${literata.variable} antialiased`}>{children}</body>
     </html>

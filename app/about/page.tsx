@@ -18,7 +18,7 @@ export default function About() {
         <div className="mb-10">
           <Link href="/">
             <Image
-              src="/mondo-wiki-logo.svg"
+              src="/asktgp-logo.svg"
               alt="Ask TGP"
               width={210}
               height={58}

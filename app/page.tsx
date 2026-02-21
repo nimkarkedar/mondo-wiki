@@ -199,7 +199,7 @@ export default function Home() {
           <div className="flex items-start justify-between">
             <Link href="/">
               <Image
-                src="/mondo-wiki-logo.svg"
+                src="/asktgp-logo.svg"
                 alt="Ask TGP"
                 width={210}
                 height={58}
