@@ -136,7 +136,7 @@ export default function Home() {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setToast(true);
-        setTimeout(() => setToast(false), 8000);
+        setTimeout(() => setToast(false), 5000);
       });
     });
   }
@@ -412,7 +412,7 @@ export default function Home() {
         {toast && (
           <div className="absolute bottom-6 left-0 right-0 flex justify-center px-8 pointer-events-none">
             <div
-              style={{ animation: "toastShow 8s ease forwards" }}
+              style={{ animation: "toastShow 5s ease forwards" }}
               className="bg-black text-white text-sm px-5 py-2.5 rounded-full shadow-lg"
             >
               Copied to clipboard
