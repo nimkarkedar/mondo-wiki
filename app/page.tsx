@@ -129,17 +129,6 @@ export default function Home() {
     await fetchAnswer(question);
   }
 
-  // Auto-run if page loaded with ?q= param
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get("q");
-    if (q) {
-      setQuestion(q);
-      fetchAnswer(q);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   function getAnswerText() {
     if (!answer) return "";
     return `Q: ${question}\n\nShort answer: ${answer.short}\n\nLong answer: ${answer.long}`;
@@ -175,11 +164,6 @@ export default function Home() {
     showToast("Copied to clipboard");
   }
 
-  async function handleShare() {
-    const url = `${window.location.origin}/?q=${encodeURIComponent(question)}`;
-    await writeToClipboard(url);
-    showToast("Link copied to clipboard");
-  }
 
   async function sendFeedback(rating: "makes_sense" | "doesnt_make_sense") {
     if (!answer || feedback) return;
@@ -317,20 +301,6 @@ export default function Home() {
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-              </svg>
-            </button>
-            {/* Share */}
-            <button
-              onClick={handleShare}
-              title="Share answer"
-              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-black/40 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="18" cy="5" r="3" />
-                <circle cx="6" cy="12" r="3" />
-                <circle cx="18" cy="19" r="3" />
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
               </svg>
             </button>
           </div>
