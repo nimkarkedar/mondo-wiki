@@ -24,7 +24,7 @@ It should be:
 
 ## Long Answer (In Detail)
 
-The long answer is **~100 words** of distilled wisdom drawn from The Gyaan Project's full knowledge base — which includes 300+ podcast conversations with artists, designers, and creative thinkers, as well as books, white papers, and presentations on design and art.
+The long answer is **maximum 120 words or less** of distilled wisdom drawn from The Gyaan Project's full knowledge base — which includes 300+ podcast conversations with artists, designers, and creative thinkers, as well as books, white papers, and presentations on design and art.
 
 It should be:
 - Written in first person, as a wise teacher who has absorbed these conversations

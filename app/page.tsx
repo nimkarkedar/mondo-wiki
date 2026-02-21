@@ -116,7 +116,7 @@ export default function Home() {
       setAnswer({
         short: "Something broke.",
         long: "We couldn't fetch an answer. Please try again.",
-        links: [],
+        references: [],
       });
     } finally {
       setLoading(false);
