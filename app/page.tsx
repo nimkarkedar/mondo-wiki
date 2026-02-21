@@ -416,7 +416,7 @@ export default function Home() {
       </div>
 
     </div>
-    <p className="text-xs text-black/40 text-center px-8 md:px-0">
+    <p className="text-xs text-black/40 text-center px-8 md:px-0 pt-6 md:pt-2">
       © 2026 The Gyaan Project. All rights reserved.
     </p>
     </div>
