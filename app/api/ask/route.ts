@@ -78,10 +78,12 @@ ${context ? `Here are the most relevant excerpts from The Gyaan Project transcri
 
 ${referencesInstruction}
 
+HARD LIMIT: The "long" answer must be 120 words or fewer. Count every word. Stop writing before you reach 120 words. Do not exceed this under any circumstances.
+
 Respond ONLY in this exact JSON format, with no text outside it:
 {
   "short": "The koan here (2–5 words)",
-  "long": "The detailed answer here, using \\n\\n to separate paragraphs.",
+  "long": "The detailed answer here, using \\n\\n to separate paragraphs. Maximum 120 words.",
   "references": [
     { "name": "Guest Name", "profession": "Profession" }
   ]
@@ -129,6 +131,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to parse AI response." }, { status: 500 });
     }
 
+
+    // Hard enforce 120-word limit on long answer
+    if (parsed.long) {
+      const words = parsed.long.split(/\s+/);
+      if (words.length > 120) {
+        const truncated = words.slice(0, 120).join(" ");
+        // Try to end at a sentence boundary
+        const lastSentence = Math.max(
+          truncated.lastIndexOf(". "),
+          truncated.lastIndexOf("! "),
+          truncated.lastIndexOf("? ")
+        );
+        parsed.long = lastSentence > truncated.length * 0.6
+          ? truncated.slice(0, lastSentence + 1)
+          : truncated;
+      }
+    }
 
     if (parsed.outOfSyllabus) {
       const funUrl = FUN_URLS[Math.floor(Math.random() * FUN_URLS.length)];
