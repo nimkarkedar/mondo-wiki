@@ -9,16 +9,16 @@ const literata = Literata({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://mondowiki.vercel.app"),
   title: "Ask TGP — Powered by The Gyaan Project",
   description: "Wisdom from 300+ conversations on design and art.",
   openGraph: {
     title: "Ask TGP — Powered by The Gyaan Project",
     description: "Wisdom from 300+ conversations on design and art.",
-    url: "https://asktgp.com",
     siteName: "Ask TGP",
     images: [
       {
-        url: "https://asktgp.com/meta-image.png",
+        url: "/meta-image.png",
         width: 1200,
         height: 630,
       },
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ask TGP — Powered by The Gyaan Project",
     description: "Wisdom from 300+ conversations on design and art.",
-    images: ["https://asktgp.com/meta-image.png"],
+    images: ["/meta-image.png"],
   },
 };
 
