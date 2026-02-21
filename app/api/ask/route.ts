@@ -181,7 +181,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (parsed.needsContext) {
+    // If the question already contains design/art keywords, never ask for more context — just answer
+    const hasDesignContext = /design|art|creative|creativity|craft|architect|typography|illustration|photography|film|music|theatre|dance/i.test(question);
+    if (parsed.needsContext && !hasDesignContext) {
       return NextResponse.json({ needsContext: true, hint: parsed.hint ?? "Try adding 'design' or 'art' to your question for a more focused answer." });
     }
 
