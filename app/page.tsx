@@ -200,7 +200,7 @@ export default function Home() {
             <Link href="/">
               <Image
                 src="/mondo-wiki-logo.svg"
-                alt="MONDO.WIKI"
+                alt="Ask TGP"
                 width={210}
                 height={58}
                 priority

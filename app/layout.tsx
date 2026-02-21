@@ -9,16 +9,16 @@ const literata = Literata({
 });
 
 export const metadata: Metadata = {
-  title: "mondo.wiki — Powered by The Gyaan Project",
+  title: "Ask TGP — Powered by The Gyaan Project",
   description: "Wisdom from 300+ conversations on design and art.",
   openGraph: {
-    title: "mondo.wiki — Powered by The Gyaan Project",
+    title: "Ask TGP — Powered by The Gyaan Project",
     description: "Wisdom from 300+ conversations on design and art.",
-    url: "https://mondowiki.vercel.app",
-    siteName: "mondo.wiki",
+    url: "https://asktgp.com",
+    siteName: "Ask TGP",
     images: [
       {
-        url: "https://mondowiki.vercel.app/meta-image.png",
+        url: "https://asktgp.com/meta-image.png",
         width: 1200,
         height: 630,
       },
@@ -27,9 +27,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "mondo.wiki — Powered by The Gyaan Project",
+    title: "Ask TGP — Powered by The Gyaan Project",
     description: "Wisdom from 300+ conversations on design and art.",
-    images: ["https://mondowiki.vercel.app/meta-image.png"],
+    images: ["https://asktgp.com/meta-image.png"],
   },
 };
 

@@ -1,4 +1,4 @@
-# mondo.wiki — Answer Prompt Settings
+# Ask TGP — Answer Prompt Settings
 
 Tweak the instructions below to change how the AI generates answers.
 

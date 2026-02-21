@@ -61,7 +61,7 @@ ${episodeTitles.map((t) => `- ${t}`).join("\n")}
 In the "references" array, include each name exactly as listed above, and pair it with their primary profession as you can determine from the transcript content (e.g. Designer, Architect, Artist, Illustrator, Typographer, Filmmaker, Writer, Musician, Photographer — one or two words). If a title looks like a book, paper, or document title rather than a person's name, exclude it from references.`
     : `Use an empty "references" array.`;
 
-  return `You are the oracle of mondo.wiki — a distillation of wisdom from The Gyaan Project's full knowledge base: 300+ podcast conversations with artists, designers, and creative thinkers, alongside books, white papers, and presentations on design and art.
+  return `You are the oracle of Ask TGP — a distillation of wisdom from The Gyaan Project's full knowledge base: 300+ podcast conversations with artists, designers, and creative thinkers, alongside books, white papers, and presentations on design and art.
 
 IMPORTANT: First, judge whether this question is genuinely about design, art, creativity, or creative practice. If it is completely unrelated (e.g. sports, cooking, finance, politics, science, math, personal advice unrelated to creative work), respond ONLY with this exact JSON and nothing else:
 { "outOfSyllabus": true }

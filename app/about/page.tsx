@@ -19,7 +19,7 @@ export default function About() {
           <Link href="/">
             <Image
               src="/mondo-wiki-logo.svg"
-              alt="MONDO.WIKI"
+              alt="Ask TGP"
               width={210}
               height={58}
               priority
@@ -44,7 +44,7 @@ export default function About() {
           href="/"
           className="hidden md:inline-flex items-center gap-2 text-black text-sm underline mt-10"
         >
-          ← Back to mondo.wiki
+          ← Back to Ask TGP
         </Link>
       </div>
 
@@ -63,14 +63,14 @@ export default function About() {
           </div>
 
           <div>
-            <p className="font-bold text-[18px] text-black mb-3">What is Mondo.Wiki?</p>
+            <p className="font-bold text-[18px] text-black mb-3">What is Ask TGP?</p>
             <p className="text-[18px] text-black leading-relaxed">
-              Mondo.Wiki is an AI oracle built on over 300 conversations that Kedar Nimkar has recorded with some of the finest minds from India&apos;s creative world, representing more than 50,000 minutes of dialogue from his podcast, The Gyaan Project. Ask it anything, and it responds in true Mondo spirit: a short answer and a long answer, drawn from those conversations.
+              Ask TGP is an AI oracle built on over 300 conversations that Kedar Nimkar has recorded with some of the finest minds from India&apos;s creative world, representing more than 50,000 minutes of dialogue from his podcast, The Gyaan Project. Ask it anything, and it responds in true Mondo spirit: a short answer and a long answer, drawn from those conversations.
             </p>
           </div>
 
           <div>
-            <p className="font-bold text-[18px] text-black mb-3">How does Mondo.Wiki work?</p>
+            <p className="font-bold text-[18px] text-black mb-3">How does Ask TGP work?</p>
             <p className="text-[18px] text-black leading-relaxed">
               Every transcript from The Gyaan Project is embedded into a vector database. When you ask a question, the most relevant passages are retrieved and passed to Claude, which synthesises them into a short and long answer. Nothing is pre-written. Every response is generated fresh, straight from the source.
             </p>
@@ -87,7 +87,7 @@ export default function About() {
           </div>
 
           <div>
-            <p className="font-bold text-[18px] text-black mb-3">Who created Mondo.Wiki?</p>
+            <p className="font-bold text-[18px] text-black mb-3">Who created Ask TGP?</p>
             <p className="text-[18px] text-black leading-relaxed">
               <a
                 href="https://www.linkedin.com/in/nimkarkedar/"
