@@ -35,7 +35,7 @@ export default function Home() {
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<"makes_sense" | "doesnt_make_sense" | null>(null);
-  const [toast, setToast] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   const [typedText, setTypedText] = useState("");
   const [loadingLabel, setLoadingLabel] = useState("");
@@ -93,9 +93,7 @@ export default function Home() {
     };
   }, []);
 
-  async function handleSubmit(e: React.SyntheticEvent) {
-    e.preventDefault();
-    if (!question.trim()) return;
+  async function fetchAnswer(q: string) {
     setLoading(true);
     setAnswer(null);
     setFeedback(null);
@@ -107,7 +105,7 @@ export default function Home() {
       const res = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question: q }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -125,46 +123,62 @@ export default function Home() {
     }
   }
 
-  function getAnswerText() {
-    if (!answer) return "";
-    return `Q: ${question}\n\nIn short: ${answer.short}\n\nIn detail: ${answer.long}`;
+  async function handleSubmit(e: React.SyntheticEvent) {
+    e.preventDefault();
+    if (!question.trim()) return;
+    await fetchAnswer(question);
   }
 
-  function showToast() {
-    setToast(false);
-    // Force re-mount so animation restarts if clicked again
+  // Auto-run if page loaded with ?q= param
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q");
+    if (q) {
+      setQuestion(q);
+      fetchAnswer(q);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function getAnswerText() {
+    if (!answer) return "";
+    return `Q: ${question}\n\nShort answer: ${answer.short}\n\nLong answer: ${answer.long}`;
+  }
+
+  function showToast(msg: string) {
+    setToast(null);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        setToast(true);
-        setTimeout(() => setToast(false), 5000);
+        setToast(msg);
+        setTimeout(() => setToast(null), 5000);
       });
     });
   }
 
-  async function handleCopy() {
+  async function writeToClipboard(text: string) {
     try {
-      await navigator.clipboard.writeText(getAnswerText());
-      showToast();
+      await navigator.clipboard.writeText(text);
     } catch {
-      // Fallback for browsers that block clipboard without user gesture
       const el = document.createElement("textarea");
-      el.value = getAnswerText();
+      el.value = text;
       el.style.position = "fixed";
       el.style.opacity = "0";
       document.body.appendChild(el);
       el.select();
       document.execCommand("copy");
       document.body.removeChild(el);
-      showToast();
     }
   }
 
+  async function handleCopy() {
+    await writeToClipboard(getAnswerText());
+    showToast("Copied to clipboard");
+  }
+
   async function handleShare() {
-    if (navigator.share) {
-      try { await navigator.share({ text: getAnswerText() }); } catch { /* cancelled */ }
-    } else {
-      await handleCopy();
-    }
+    const url = `${window.location.origin}/?q=${encodeURIComponent(question)}`;
+    await writeToClipboard(url);
+    showToast("Link copied to clipboard");
   }
 
   async function sendFeedback(rating: "makes_sense" | "doesnt_make_sense") {
@@ -408,7 +422,7 @@ export default function Home() {
               style={{ animation: "toastShow 5s ease forwards" }}
               className="bg-black text-white text-sm px-5 py-2.5 rounded-full shadow-lg"
             >
-              Copied to clipboard
+              {toast}
             </div>
           </div>
         )}
