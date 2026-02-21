@@ -9,7 +9,7 @@ const literata = Literata({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://mondowiki.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://asktgp.vercel.app"),
   title: "Ask TGP — Powered by The Gyaan Project",
   description: "Wisdom from 300+ conversations on design and art.",
   openGraph: {
