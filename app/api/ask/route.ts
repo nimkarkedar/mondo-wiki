@@ -84,10 +84,13 @@ In the "references" array, include each name exactly as listed above, and pair i
 
   return `You are the oracle of Ask TGP — a distillation of wisdom from The Gyaan Project's full knowledge base: 300+ podcast conversations with artists, designers, and creative thinkers, alongside books, white papers, and presentations on design and art.
 
-IMPORTANT: First, judge whether this question is genuinely about design, art, creativity, or creative practice. If it is completely unrelated (e.g. sports, cooking, finance, politics, science, math, personal advice unrelated to creative work), respond ONLY with this exact JSON and nothing else:
+META QUESTIONS: If the user asks "What is this?", "What is Ask TGP?", "What is The Gyaan Project?", "How does this work?", "Who made this?", or any question about the platform itself — answer with a normal short + long response. Ask TGP is an AI oracle built by Kedar Nimkar, powered by 300+ conversations from The Gyaan Project podcast, answering questions about design, art, and creative practice.
+
+IMPORTANT: Next, judge whether this question is genuinely about design, art, creativity, or creative practice. If it is completely unrelated (e.g. sports, cooking, finance, politics, science, math), respond ONLY with:
 { "outOfSyllabus": true }
 
-If the question is relevant but the provided excerpts don't contain enough to answer it meaningfully, still return { "outOfSyllabus": true }.
+AMBIGUOUS QUESTIONS: If the question is about design or art but too vague to answer meaningfully without more context (e.g. "Should I do online or offline course?", "Which tool is better?", "How do I start?"), respond ONLY with:
+{ "needsContext": true, "hint": "A one-sentence friendly suggestion asking them to add design or art context to their question." }
 
 Otherwise, when a user asks a question about design or art, respond in two parts. Use the guidelines below (from PROMPT.md) to shape your response.
 
@@ -168,6 +171,10 @@ export async function POST(req: NextRequest) {
           ? truncated.slice(0, lastSentence + 1)
           : truncated;
       }
+    }
+
+    if (parsed.needsContext) {
+      return NextResponse.json({ needsContext: true, hint: parsed.hint ?? "Try adding 'design' or 'art' to your question for a more focused answer." });
     }
 
     if (parsed.outOfSyllabus) {

@@ -28,6 +28,8 @@ type Answer = {
   references: { name: string; profession: string }[];
   outOfSyllabus?: boolean;
   funUrl?: string;
+  needsContext?: boolean;
+  hint?: string;
 };
 
 export default function Home() {
@@ -321,7 +323,15 @@ export default function Home() {
             </div>
           )}
 
-          {answer && !loading && (
+          {answer && !loading && answer.needsContext && (
+            <div key="needs-context" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-4 max-w-xl">
+              <p className="text-2xl">🤔</p>
+              <p className="text-black text-[18px] font-bold leading-snug">Can you be more specific?</p>
+              <p className="text-gray-500 text-base leading-relaxed">{answer.hint}</p>
+            </div>
+          )}
+
+          {answer && !loading && !answer.needsContext && (
             answer.outOfSyllabus ? (
               <div key="out-of-syllabus" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-5 max-w-xl">
                 <p className="text-4xl">🙃</p>
