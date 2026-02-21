@@ -29,24 +29,46 @@ async function getRelevantChunks(question: string) {
 
   const { data, error } = await supabase.rpc("match_chunks", {
     query_embedding: embedding,
-    match_count: 5,
+    match_count: 3,
   });
 
   if (error) {
-    console.error("Supabase search error:", error);
+    console.error("❌ Supabase match_chunks error:", JSON.stringify(error));
     return [];
   }
 
   return data ?? [];
 }
 
-function buildSystemPrompt(context: string): string {
+const FUN_URLS = [
+  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",  // Never Gonna Give You Up
+  "https://www.youtube.com/watch?v=QH2-TGUlwu4",  // Nyan Cat
+  "https://www.youtube.com/watch?v=OQSNhk5ICTI",  // Double Rainbow
+  "https://www.youtube.com/watch?v=KmtzQCSh6xk",  // Numa Numa
+  "https://www.youtube.com/watch?v=sCNrK-n68CM",  // Mr. Bean at the Olympics
+  "https://www.youtube.com/watch?v=HBFoSEMGLIA",  // Dramatic Chipmunk
+  "https://www.youtube.com/watch?v=tLt5rBfNucc",  // Sneezing Panda
+];
+
+function buildSystemPrompt(context: string, episodeTitles: string[]): string {
   const promptPath = path.join(process.cwd(), "PROMPT.md");
   const promptDoc = fs.readFileSync(promptPath, "utf-8");
 
+  const referencesInstruction = episodeTitles.length > 0
+    ? `The transcripts you are drawing from belong to the following guests — use these names exactly as written:
+${episodeTitles.map((t) => `- ${t}`).join("\n")}
+
+In the "references" array, include each name exactly as listed above, and pair it with their primary profession as you can determine from the transcript content (e.g. Designer, Architect, Artist, Illustrator, Typographer, Filmmaker, Writer, Musician, Photographer — one or two words). If a title looks like a book, paper, or document title rather than a person's name, exclude it from references.`
+    : `Use an empty "references" array.`;
+
   return `You are the oracle of mondo.wiki — a distillation of wisdom from The Gyaan Project's full knowledge base: 300+ podcast conversations with artists, designers, and creative thinkers, alongside books, white papers, and presentations on design and art.
 
-When a user asks a question about design or art, respond in two parts. Use the guidelines below (from PROMPT.md) to shape your response.
+IMPORTANT: First, judge whether this question is genuinely about design, art, creativity, or creative practice. If it is completely unrelated (e.g. sports, cooking, finance, politics, science, math, personal advice unrelated to creative work), respond ONLY with this exact JSON and nothing else:
+{ "outOfSyllabus": true }
+
+If the question is relevant but the provided excerpts don't contain enough to answer it meaningfully, still return { "outOfSyllabus": true }.
+
+Otherwise, when a user asks a question about design or art, respond in two parts. Use the guidelines below (from PROMPT.md) to shape your response.
 
 ---
 ${promptDoc}
@@ -54,11 +76,15 @@ ${promptDoc}
 
 ${context ? `Here are the most relevant excerpts from The Gyaan Project transcripts to inform your answer:\n\n${context}\n\nDraw from this wisdom to craft your response. Be specific and reference ideas from these conversations.` : "Draw from your general understanding of design and art wisdom."}
 
+${referencesInstruction}
+
 Respond ONLY in this exact JSON format, with no text outside it:
 {
   "short": "The koan here (2–5 words)",
   "long": "The detailed answer here, using \\n\\n to separate paragraphs.",
-  "links": []
+  "references": [
+    { "name": "Guest Name", "profession": "Profession" }
+  ]
 }`;
 }
 
@@ -80,15 +106,15 @@ export async function POST(req: NextRequest) {
       )
       .join("\n\n---\n\n");
 
-    // Extract episode titles for links
+    // Extract unique episode titles — these are the ground-truth guest names
     const episodeTitles = [...new Set(
       chunks.map((c: { episode_title: string }) => c.episode_title)
     )] as string[];
 
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 1024,
-      system: buildSystemPrompt(context),
+      max_tokens: 800,
+      system: buildSystemPrompt(context, episodeTitles),
       messages: [{ role: "user", content: `Question: ${question.trim()}` }],
     });
 
@@ -103,8 +129,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to parse AI response." }, { status: 500 });
     }
 
-    // Add episode links
-    parsed.links = episodeTitles.map((title) => ({ title, url: "#" }));
+
+    if (parsed.outOfSyllabus) {
+      const funUrl = FUN_URLS[Math.floor(Math.random() * FUN_URLS.length)];
+      return NextResponse.json({ outOfSyllabus: true, funUrl });
+    }
+
+    if (!Array.isArray(parsed.references)) parsed.references = [];
+
+    // Fallback: if Claude returned no references, use episode titles directly
+    if (parsed.references.length === 0) {
+      parsed.references = episodeTitles.map((title) => ({ name: title, profession: "" }));
+    }
+
 
     return NextResponse.json(parsed);
   } catch (error) {

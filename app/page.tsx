@@ -25,7 +25,9 @@ const PLACEHOLDERS = [
 type Answer = {
   short: string;
   long: string;
-  links: { title: string; url: string }[];
+  references: { name: string; profession: string }[];
+  outOfSyllabus?: boolean;
+  funUrl?: string;
 };
 
 export default function Home() {
@@ -241,7 +243,7 @@ export default function Home() {
 
         <div className="hidden md:flex flex-1" />
 
-        <p className="text-black text-xs opacity-60 mt-10">
+        <p className="hidden md:block text-black text-xs opacity-60 mt-10">
           © 2026 The Gyaan Project. All rights reserved.
         </p>
       </div>
@@ -262,15 +264,34 @@ export default function Home() {
         )}
 
         {answer && !loading && (
-          <div className="flex flex-col gap-7 max-w-xl answer-reveal">
-            <div>
+          answer.outOfSyllabus ? (
+            <div key="out-of-syllabus" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-5 max-w-xl">
+              <p className="text-4xl">🙃</p>
+              <p className="text-black text-[18px] font-bold leading-snug">
+                This question is out of syllabus.
+              </p>
+              <p className="text-gray-500 text-base leading-relaxed">
+                Our oracle only speaks design and art. Your question has wandered somewhere the archive has never been.
+              </p>
+              <a
+                href={answer.funUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-base font-semibold underline text-black hover:text-gray-600 transition-colors"
+              >
+                Have Fun →
+              </a>
+            </div>
+          ) : (
+          <div key={answer.short} className="flex flex-col gap-7 max-w-xl">
+            <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }}>
               <p className="font-bold text-[18px] text-black">In short</p>
               <p className="text-[18px] font-normal text-black leading-snug mt-1">
                 {answer.short}
               </p>
             </div>
 
-            <div>
+            <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 160ms forwards" }}>
               <p className="font-bold text-[18px] text-black mb-3">In detail</p>
               <div className="text-black text-[18px] font-normal leading-relaxed space-y-5">
                 {answer.long.split("\n\n").map((para, i) => (
@@ -280,7 +301,7 @@ export default function Home() {
             </div>
 
             {/* Feedback */}
-            <div className="flex items-center gap-3 pt-2">
+            <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 300ms forwards" }} className="flex items-center gap-3 pt-2">
               {feedback ? (
                 <p className="text-sm text-gray-400">Thanks for the feedback.</p>
               ) : (
@@ -302,8 +323,12 @@ export default function Home() {
             </div>
 
           </div>
+          )
         )}
 
+        <p className="md:hidden text-black text-xs opacity-60 mt-10 pb-4">
+          © 2026 The Gyaan Project. All rights reserved.
+        </p>
       </div>
 
     </div>

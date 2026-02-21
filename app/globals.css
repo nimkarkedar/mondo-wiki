@@ -26,12 +26,8 @@ body {
 
 /* ── Answer reveal animation ── */
 @keyframes answerReveal {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(22px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-.answer-reveal {
-  animation: answerReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ── Typewriter cursor blink ── */
