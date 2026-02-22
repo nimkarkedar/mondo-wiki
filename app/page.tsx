@@ -31,6 +31,7 @@ type Answer = {
   funUrl?: string;
   needsContext?: boolean;
   hint?: string;
+  isError?: boolean;
 };
 
 export default function Home() {
@@ -116,8 +117,9 @@ export default function Home() {
     } catch (err) {
       console.error(err);
       setAnswer({
-        short: "Something broke.",
-        long: "We couldn't fetch an answer. Please try again.",
+        isError: true,
+        short: "",
+        long: "Something went wrong. Please try again.",
         references: [],
       });
     } finally {
@@ -330,6 +332,13 @@ export default function Home() {
             </div>
           )}
 
+          {answer && !loading && answer.isError && (
+            <div key="error" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-3 max-w-xl">
+              <p className="text-2xl">😕</p>
+              <p className="text-gray-500 text-base leading-relaxed">{answer.long}</p>
+            </div>
+          )}
+
           {answer && !loading && answer.needsContext && (
             <div key="needs-context" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-4 max-w-xl">
               <p className="text-2xl">🤔</p>
@@ -338,7 +347,7 @@ export default function Home() {
             </div>
           )}
 
-          {answer && !loading && !answer.needsContext && (
+          {answer && !loading && !answer.isError && !answer.needsContext && (
             answer.outOfSyllabus ? (
               <div key="out-of-syllabus" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-5 max-w-xl">
                 <p className="text-4xl">🙃</p>

@@ -107,7 +107,7 @@ In the "references" array, include each name exactly as listed above, and pair i
 
   return `You are the oracle of Ask TGP — a distillation of wisdom from The Gyaan Project's full knowledge base: 300+ podcast conversations with artists, designers, and creative thinkers, alongside books, white papers, and presentations on design and art.
 
-IMPORTANT: First, judge whether this question is genuinely about design, art, creativity, or creative practice. If it is completely unrelated (e.g. sports, cooking, finance, politics, science, math), respond ONLY with:
+IMPORTANT: First, judge whether this question is genuinely about design, art, creativity, or creative practice. Questions asking to summarise or describe a specific guest's episode from The Gyaan Project are ALWAYS valid — treat them as an invitation to distil that person's ideas and perspective. If the question is completely unrelated (e.g. sports, cooking, finance, politics, science, math), respond ONLY with:
 { "outOfSyllabus": true }
 
 ${allowNeedsContext ? `AMBIGUOUS QUESTIONS: If the question has no design or art keywords and is too vague to answer (e.g. "Which is better?", "How do I start?", "What should I choose?"), respond ONLY with:
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const hasDesignContext = /design|art|architect|creative|creativity|craft|typography|illustration|photography|film|music|theatre|dance|paint|sculpt|brand|ux|ui/i.test(question);
+    const hasDesignContext = /design|art|architect|creative|creativity|craft|typography|illustration|photography|film|music|theatre|dance|paint|sculpt|brand|ux|ui|summaris|summariz|episode|gyaan|tgp/i.test(question);
 
     // Search for relevant transcript chunks
     const chunks = await getRelevantChunks(question);
