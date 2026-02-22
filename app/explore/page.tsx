@@ -39,10 +39,19 @@ export default function Explore() {
     try {
       const res = await fetch(`/api/history?offset=${currentOffset}`);
       const data = await res.json();
-      // Replace on first load, append on "load more"
-      setItems((prev) =>
-        currentOffset === 0 ? (data.items ?? []) : [...prev, ...(data.items ?? [])]
-      );
+      // Replace on first load, append on "load more" — dedupe by question text
+      setItems((prev) => {
+        const merged = currentOffset === 0
+          ? (data.items ?? [])
+          : [...prev, ...(data.items ?? [])];
+        const seen = new Set<string>();
+        return merged.filter((item: HistoryItem) => {
+          const key = item.question.trim().toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      });
       setOffset(currentOffset + (data.items?.length ?? 0));
       setHasMore(data.hasMore);
     } catch {

@@ -207,19 +207,31 @@ export async function POST(req: NextRequest) {
       parsed.references = episodeTitles.map((title) => ({ name: title, profession: "" }));
     }
 
-    // Save to qa_history and capture the generated ID
+    // Save to qa_history — skip if identical question saved in last 2 minutes
     let historyId: string | null = null;
     try {
-      const { data: historyRow } = await supabase
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+      const { data: dupe } = await supabase
         .from("qa_history")
-        .insert({
-          question: question.trim(),
-          short_answer: parsed.short,
-          long_answer: parsed.long,
-        })
         .select("id")
-        .single();
-      historyId = historyRow?.id ?? null;
+        .eq("question", question.trim())
+        .gte("created_at", twoMinutesAgo)
+        .maybeSingle();
+
+      if (!dupe) {
+        const { data: historyRow } = await supabase
+          .from("qa_history")
+          .insert({
+            question: question.trim(),
+            short_answer: parsed.short,
+            long_answer: parsed.long,
+          })
+          .select("id")
+          .single();
+        historyId = historyRow?.id ?? null;
+      } else {
+        historyId = dupe.id;
+      }
     } catch {
       // Ignore history save errors
     }
