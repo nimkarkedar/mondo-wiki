@@ -50,7 +50,25 @@ async function embedQuestion(question: string): Promise<number[]> {
 // Extract a proper person name from the question (e.g. "Rupali Gupte")
 function extractPersonName(question: string): string | null {
   const matches = question.match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+\b/g);
-  return matches ? matches[0] : null;
+  if (!matches) return null;
+
+  // Words that start a sentence but are not part of a person's name
+  const skipWords = new Set([
+    "Summarise", "Summarize", "Tell", "What", "Who", "How", "Why",
+    "Where", "When", "Describe", "Explain", "Show", "Give", "Can",
+    "Does", "Did", "Is", "Are", "Was", "The", "This", "These",
+  ]);
+
+  for (const match of matches) {
+    const words = match.split(" ");
+    // Strip leading skip words
+    let start = 0;
+    while (start < words.length && skipWords.has(words[start])) start++;
+    const name = words.slice(start).join(" ");
+    if (name.includes(" ")) return name; // at least 2 words = likely a name
+  }
+
+  return null;
 }
 
 async function getRelevantChunks(question: string) {
