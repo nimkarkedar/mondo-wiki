@@ -277,11 +277,7 @@ export default function Home() {
               {loading ? loadingLabel : "Submit"}
             </button>
             <p className="text-white text-sm text-center mt-1">
-              First question is free. Then you have to{" "}
-              <a href="#register" className="underline">
-                Register
-              </a>
-              .
+              Expect insights, not always practical takeaways.
             </p>
           </form>
         </div>
