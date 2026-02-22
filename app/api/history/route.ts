@@ -14,19 +14,23 @@ export async function GET(req: NextRequest) {
   const since = new Date();
   since.setDate(since.getDate() - 10);
 
-  const { data: items, error } = await supabase
+  // Fetch one extra to know if more pages exist
+  const { data: raw, error } = await supabase
     .from("qa_history")
     .select("id, question, short_answer, long_answer, created_at")
     .gte("created_at", since.toISOString())
     .order("created_at", { ascending: false })
-    .range(offset, offset + limit - 1);
+    .range(offset, offset + limit);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  const hasMore = (raw?.length ?? 0) > limit;
+  const items = (raw ?? []).slice(0, limit);
+
   const enriched = await Promise.all(
-    (items ?? []).map(async (item) => {
+    items.map(async (item) => {
       const { data: feedbackData } = await supabase
         .from("feedback")
         .select("rating")
@@ -39,8 +43,5 @@ export async function GET(req: NextRequest) {
     })
   );
 
-  return NextResponse.json({
-    items: enriched,
-    hasMore: (items?.length ?? 0) === limit,
-  });
+  return NextResponse.json({ items: enriched, hasMore });
 }

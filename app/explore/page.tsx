@@ -258,7 +258,7 @@ export default function Explore() {
               <button
                 onClick={() => loadItems(offset)}
                 disabled={loading}
-                className="mt-6 self-start text-sm font-semibold text-black underline hover:text-gray-600 transition-colors disabled:opacity-50"
+                className="mt-8 w-full py-3.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500 hover:border-gray-400 hover:text-black transition-colors disabled:opacity-40"
               >
                 {loading ? "Loading…" : "Load more"}
               </button>
