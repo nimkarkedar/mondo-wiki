@@ -49,9 +49,6 @@ async function embedQuestion(question: string): Promise<number[]> {
 
 // Extract a proper person name from the question (e.g. "Rupali Gupte")
 function extractPersonName(question: string): string | null {
-  const matches = question.match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+\b/g);
-  if (!matches) return null;
-
   // Words that start a sentence but are not part of a person's name
   const skipWords = new Set([
     "Summarise", "Summarize", "Tell", "What", "Who", "How", "Why",
@@ -59,14 +56,24 @@ function extractPersonName(question: string): string | null {
     "Does", "Did", "Is", "Are", "Was", "The", "This", "These",
   ]);
 
-  for (const match of matches) {
-    const words = match.split(" ");
-    // Strip leading skip words
-    let start = 0;
-    while (start < words.length && skipWords.has(words[start])) start++;
-    const name = words.slice(start).join(" ");
-    if (name.includes(" ")) return name; // at least 2 words = likely a name
+  // First: try multi-word name (e.g. "Sunit Singh")
+  const matches = question.match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+\b/g);
+  if (matches) {
+    for (const match of matches) {
+      const words = match.split(" ");
+      let start = 0;
+      while (start < words.length && skipWords.has(words[start])) start++;
+      const name = words.slice(start).join(" ");
+      if (name.includes(" ")) return name;
+    }
   }
+
+  // Fallback: single first name with possessive in summary context
+  // e.g. "Summarise Sunit's episode" → "Sunit"
+  const possessive = question.match(
+    /(?:summarise|summarize|tell me about|describe|about)\s+([A-Z][a-zA-Z]+)'s/i
+  );
+  if (possessive) return possessive[1];
 
   return null;
 }
@@ -103,13 +110,14 @@ async function getRelevantChunks(question: string) {
 }
 
 const FUN_URLS = [
-  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",  // Never Gonna Give You Up
+  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",  // Never Gonna Give You Up (Rickroll)
   "https://www.youtube.com/watch?v=QH2-TGUlwu4",  // Nyan Cat
-  "https://www.youtube.com/watch?v=OQSNhk5ICTI",  // Double Rainbow
+  "https://www.youtube.com/watch?v=jNQXAC9IVRw",  // Me at the zoo (first ever YouTube video)
   "https://www.youtube.com/watch?v=KmtzQCSh6xk",  // Numa Numa
   "https://www.youtube.com/watch?v=sCNrK-n68CM",  // Mr. Bean at the Olympics
-  "https://www.youtube.com/watch?v=HBFoSEMGLIA",  // Dramatic Chipmunk
-  "https://www.youtube.com/watch?v=tLt5rBfNucc",  // Sneezing Panda
+  "https://www.youtube.com/watch?v=oHg5SJYRHA0",  // Never Gonna Give You Up but animated
+  "https://www.youtube.com/watch?v=ZZ5LpwO-An4",  // Happiness (Nigel Stanford)
+  "https://www.youtube.com/watch?v=_OBlgSz8sSM",  // This is Fine
 ];
 
 function buildSystemPrompt(context: string, episodeTitles: string[], allowNeedsContext: boolean): string {
@@ -281,7 +289,7 @@ export async function POST(req: NextRequest) {
     const city = decodeURIComponent(req.headers.get("x-vercel-ip-city") ?? "unknown");
     const country = req.headers.get("x-vercel-ip-country") ?? "";
     const location = country ? `${city}, ${country}` : city;
-    logToSheet(question.trim(), location).catch(() => {});
+    logToSheet(question.trim(), location).catch((err) => console.error("Sheet log failed:", err?.message ?? err));
 
     return NextResponse.json({ ...parsed, id: historyId });
   } catch (error) {

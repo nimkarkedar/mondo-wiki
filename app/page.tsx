@@ -203,7 +203,10 @@ export default function Home() {
         {/* Logo + tagline + About */}
         <div className="mb-8 md:mb-10">
           <div className="flex items-start justify-between">
-            <Link href="/">
+            <button
+              onClick={() => { setQuestion(""); setAnswer(null); setFeedback(null); }}
+              className="focus:outline-none"
+            >
               <Image
                 src="/asktgp-logo.svg"
                 alt="Ask TGP"
@@ -211,7 +214,7 @@ export default function Home() {
                 height={58}
                 priority
               />
-            </Link>
+            </button>
             <a href="/about" className="text-white font-semibold text-base mt-2">
               About
             </a>
@@ -357,14 +360,16 @@ export default function Home() {
                 <p className="text-gray-500 text-base leading-relaxed">
                   Our oracle only speaks design and art. Your question has wandered somewhere the archive has never been.
                 </p>
-                <a
-                  href={answer.funUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-base font-semibold underline text-black hover:text-gray-600 transition-colors"
-                >
-                  Have Fun →
-                </a>
+                {answer.funUrl && (
+                  <a
+                    href={answer.funUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-base font-semibold underline text-black hover:text-gray-600 transition-colors"
+                  >
+                    Have Fun →
+                  </a>
+                )}
               </div>
             ) : (
               <div key={answer.short} className="flex flex-col gap-7 max-w-xl">
