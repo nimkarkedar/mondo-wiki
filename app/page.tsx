@@ -233,7 +233,7 @@ export default function Home() {
             Ask any question on design and art
           </h1>
           <p className="text-white text-lg leading-snug">
-            Answers are fetched from The Gyaan Project&apos;s 300+ conversations using AI. It can make mistakes.
+            Expect philosophical answers. These are fetched from The Gyaan Project&apos;s 300+ conversations using AI. It can make mistakes.
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-1">

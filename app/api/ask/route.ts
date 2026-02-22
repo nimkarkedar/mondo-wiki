@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { google } from "googleapis";
 import fs from "fs";
 import path from "path";
 
@@ -10,6 +11,28 @@ const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+async function logToSheet(question: string, ip: string) {
+  if (!process.env.GOOGLE_SHEET_ID) return;
+  try {
+    const auth = new google.auth.JWT({
+      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    });
+    const sheets = google.sheets({ version: "v4", auth });
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: "Sheet1!A:C",
+      valueInputOption: "RAW",
+      requestBody: {
+        values: [[new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }), question, ip]],
+      },
+    });
+  } catch (err) {
+    console.error("Sheet log error:", err);
+  }
+}
 
 async function embedQuestion(question: string): Promise<number[]> {
   const res = await fetch("https://api.voyageai.com/v1/embeddings", {
@@ -235,6 +258,12 @@ export async function POST(req: NextRequest) {
     } catch {
       // Ignore history save errors
     }
+
+    // Log to Google Sheet (fire-and-forget)
+    const city = decodeURIComponent(req.headers.get("x-vercel-ip-city") ?? "unknown");
+    const country = req.headers.get("x-vercel-ip-country") ?? "";
+    const location = country ? `${city}, ${country}` : city;
+    logToSheet(question.trim(), location).catch(() => {});
 
     return NextResponse.json({ ...parsed, id: historyId });
   } catch (error) {

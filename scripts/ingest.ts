@@ -1,5 +1,5 @@
 /**
- * mondo.wiki — Transcript Ingestion Script
+ * tgp.wiki — Transcript Ingestion Script
  *
  * Run this whenever you add new transcripts to Google Drive:
  *   npx tsx scripts/ingest.ts
