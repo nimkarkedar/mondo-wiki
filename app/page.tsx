@@ -23,6 +23,7 @@ const PLACEHOLDERS = [
 ];
 
 type Answer = {
+  id?: string;
   short: string;
   long: string;
   references: { name: string; profession: string }[];
@@ -178,6 +179,7 @@ export default function Home() {
         short_answer: answer.short,
         long_answer: answer.long,
         rating,
+        qa_history_id: answer.id ?? null,
       }),
     });
   }
@@ -312,9 +314,18 @@ export default function Home() {
         <div className="flex-1 overflow-y-auto px-8 md:px-14 py-10 flex flex-col">
 
           {!answer && !loading && (
-            <div className="flex-1 flex items-center justify-center text-gray-300 text-lg select-none py-16 md:py-0">
-              Your answer will appear here.
-            </div>
+            <>
+              <p className="text-gray-300 text-lg select-none">Your answer will appear here.</p>
+              <div className="flex-1 flex items-center justify-center py-16 md:py-0">
+                <Link
+                  href="/explore"
+                  className="explore-card block border-2 rounded-xl px-6 py-5 group w-full max-w-sm"
+                >
+                  <p className="font-semibold text-[18px] text-black group-hover:text-gray-700 transition-colors">See what others are asking</p>
+                  <p className="text-sm text-gray-400 mt-1">Browse questions from the last 10 days →</p>
+                </Link>
+              </div>
+            </>
           )}
 
           {loading && (
@@ -376,15 +387,15 @@ export default function Home() {
                     <>
                       <button
                         onClick={() => sendFeedback("makes_sense")}
-                        className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
+                        className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors whitespace-nowrap"
                       >
                         👍 Makes sense
                       </button>
                       <button
                         onClick={() => sendFeedback("doesnt_make_sense")}
-                        className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
+                        className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors whitespace-nowrap"
                       >
-                        👎 Doesn&apos;t make sense
+                        👎 Non-sense
                       </button>
                     </>
                   )}

@@ -38,6 +38,28 @@ body {
   100% { opacity: 0; transform: translateY(4px);  }
 }
 
+/* ── Explore card border pulse ── */
+@keyframes borderPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 105, 0, 0);
+    border-color: rgb(156, 163, 175);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px rgba(255, 105, 0, 0.14);
+    border-color: rgba(255, 105, 0, 0.65);
+  }
+}
+
+.explore-card {
+  animation: borderPulse 3s ease-in-out infinite;
+}
+
+.explore-card:hover {
+  animation-play-state: paused;
+  border-color: rgb(255, 105, 0) !important;
+  box-shadow: 0 0 22px 5px rgba(255, 105, 0, 0.18);
+}
+
 /* ── Typewriter cursor blink ── */
 @keyframes blink {
   0%, 100% { opacity: 1; }

@@ -7,13 +7,14 @@ const supabase = createClient(
 );
 
 export async function POST(req: NextRequest) {
-  const { question, short_answer, long_answer, rating } = await req.json();
+  const { question, short_answer, long_answer, rating, qa_history_id } = await req.json();
 
   const { error } = await supabase.from("feedback").insert({
     question,
     short_answer,
     long_answer,
     rating,
+    ...(qa_history_id ? { qa_history_id } : {}),
   });
 
   if (error) {

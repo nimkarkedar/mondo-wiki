@@ -166,6 +166,14 @@ export async function POST(req: NextRequest) {
     }
 
 
+    // Strip any URLs or "Learn more" lines from long answer
+    if (parsed.long) {
+      parsed.long = parsed.long
+        .replace(/\n*\s*Learn more[:\s].*$/gim, "")
+        .replace(/https?:\/\/\S+/g, "")
+        .trim();
+    }
+
     // Hard enforce 120-word limit on long answer
     if (parsed.long) {
       const words = parsed.long.split(/\s+/);
@@ -199,8 +207,24 @@ export async function POST(req: NextRequest) {
       parsed.references = episodeTitles.map((title) => ({ name: title, profession: "" }));
     }
 
+    // Save to qa_history and capture the generated ID
+    let historyId: string | null = null;
+    try {
+      const { data: historyRow } = await supabase
+        .from("qa_history")
+        .insert({
+          question: question.trim(),
+          short_answer: parsed.short,
+          long_answer: parsed.long,
+        })
+        .select("id")
+        .single();
+      historyId = historyRow?.id ?? null;
+    } catch {
+      // Ignore history save errors
+    }
 
-    return NextResponse.json(parsed);
+    return NextResponse.json({ ...parsed, id: historyId });
   } catch (error) {
     console.error("API error:", error);
     return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
