@@ -151,7 +151,7 @@ export default function Explore() {
               What others are asking
             </h1>
             {items.length > 0 && (
-              <p className="text-black text-base mt-6">Last 10 questions only</p>
+              <p className="text-black text-base mt-4">Last 10 questions only</p>
             )}
           </div>
         </section>
