@@ -388,21 +388,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                {answer.references && answer.references.length > 0 && (
-                  <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 240ms forwards" }}>
-                    <p className="text-white/60 text-[15px] mb-2">Further exploration in…</p>
-                    <ul className="list-disc pl-5 text-white text-[16px] space-y-1">
-                      {answer.references.map((ref, i) => (
-                        <li key={i}>
-                          <span className="underline">{ref.name}</span>
-                          {ref.profession ? ` — ${ref.profession}` : ""}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 300ms forwards" }} className="flex items-center gap-2 pt-2">
+<div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 300ms forwards" }} className="flex items-center gap-2 pt-2">
                   {feedback ? (
                     <p className="text-sm text-white/60">Thanks for the feedback.</p>
                   ) : (
