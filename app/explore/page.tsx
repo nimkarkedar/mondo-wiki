@@ -144,7 +144,6 @@ export default function Explore() {
         <nav className="flex items-center gap-8 md:gap-12 text-black text-lg">
           <Link href="/" className="hidden md:inline hover:opacity-70 transition-opacity">Home</Link>
           <Link href="/about" className="hover:opacity-70 transition-opacity">About</Link>
-          <Link href="/donate" className="hover:opacity-70 transition-opacity">Donate</Link>
         </nav>
       </header>
 
