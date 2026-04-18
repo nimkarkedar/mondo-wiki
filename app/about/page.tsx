@@ -28,14 +28,14 @@ export default function About() {
             </nav>
           </header>
 
-          <div className="px-6 md:px-10 pt-10 md:pt-14 pb-10 md:pb-14">
+          <div className="px-6 md:px-10 pt-10 md:pt-[50px] pb-10 md:pb-14">
             <h1 className="text-black text-5xl md:text-6xl font-bold leading-tight">About</h1>
           </div>
         </section>
 
         {/* Right panel — black */}
         <section className="relative w-full flex-1 md:flex-none md:w-[70%] bg-[#111111] flex flex-col">
-          <div className="px-6 md:px-10 pt-10 md:pt-14 pb-20 md:pb-24 max-w-[36ch] md:max-w-[52ch]">
+          <div className="px-6 md:px-10 pt-10 md:pt-[50px] pb-20 md:pb-24 max-w-[36ch] md:max-w-[52ch]">
             <div className="flex flex-col gap-6 text-white text-base leading-relaxed">
               <p>
                 Ask TGP is an AI oracle built on conversations that{" "}
