@@ -29,7 +29,7 @@ export default function About() {
           </header>
 
           <div className="px-6 md:px-10 pt-10 md:pt-[50px] pb-10 md:pb-14">
-            <h1 className="text-black text-5xl md:text-6xl font-bold leading-tight">About</h1>
+            <h1 className="text-black text-5xl md:text-6xl font-bold leading-tight" style={{ letterSpacing: "-2px" }}>About</h1>
           </div>
         </section>
 
