@@ -35,7 +35,7 @@ export default function About() {
 
         {/* Right panel — black */}
         <section className="relative w-full flex-1 md:flex-none md:w-[70%] bg-[#111111] flex flex-col">
-          <div className="px-6 md:px-10 pt-10 md:pt-[140px] pb-20 md:pb-24 max-w-[36ch] md:max-w-[60ch]">
+          <div className="px-6 md:px-10 pt-10 md:pt-[130px] pb-20 md:pb-24 max-w-[36ch] md:max-w-[60ch]">
             <div className="flex flex-col gap-6 text-white text-base leading-relaxed">
               <p>
                 Ask TGP is an AI oracle built on conversations that{" "}
