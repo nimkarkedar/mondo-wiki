@@ -373,14 +373,12 @@ export default function Home() {
                 Our oracle only speaks design and art. Your question has wandered somewhere the archive has never been.
               </p>
               {answer.funUrl && (
-                <a
-                  href={answer.funUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-base font-semibold underline text-black hover:text-gray-600 transition-colors"
-                >
-                  Have Fun →
-                </a>
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={answer.funUrl}
+                  alt="A random reaction"
+                  className="rounded-2xl max-w-sm w-full h-auto border border-gray-200"
+                />
               )}
             </div>
           )}

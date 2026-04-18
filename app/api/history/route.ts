@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     .from("qa_history")
     .select("id, question, short_answer, long_answer, created_at")
     .gte("created_at", since.toISOString())
+    .neq("short_answer", "__OUT_OF_SYLLABUS__")
     .order("created_at", { ascending: false })
     .range(offset, offset + limit);
 

@@ -109,16 +109,25 @@ async function getRelevantChunks(question: string) {
   return data ?? [];
 }
 
-const FUN_URLS = [
-  "https://www.youtube.com/watch?v=dQw4w9WgXcQ",  // Never Gonna Give You Up (Rickroll)
-  "https://www.youtube.com/watch?v=QH2-TGUlwu4",  // Nyan Cat
-  "https://www.youtube.com/watch?v=jNQXAC9IVRw",  // Me at the zoo (first ever YouTube video)
-  "https://www.youtube.com/watch?v=KmtzQCSh6xk",  // Numa Numa
-  "https://www.youtube.com/watch?v=sCNrK-n68CM",  // Mr. Bean at the Olympics
-  "https://www.youtube.com/watch?v=oHg5SJYRHA0",  // Never Gonna Give You Up but animated
-  "https://www.youtube.com/watch?v=ZZ5LpwO-An4",  // Happiness (Nigel Stanford)
-  "https://www.youtube.com/watch?v=_OBlgSz8sSM",  // This is Fine
+// Random meme / reaction GIFs shown when a question is out of syllabus.
+// Direct Giphy media URLs — served as <img> on the client.
+const FUN_GIFS = [
+  "https://media.giphy.com/media/3o7TKsQ8gb44YHKMuY/giphy.gif",
+  "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
+  "https://media.giphy.com/media/26BRrSvJUa0crqw4E/giphy.gif",
+  "https://media.giphy.com/media/xUPGcl3ijl0vAEyIRi/giphy.gif",
+  "https://media.giphy.com/media/l0HlSNOxJB956qwfK/giphy.gif",
+  "https://media.giphy.com/media/l1J9sBOj2EqwFIbvG/giphy.gif",
+  "https://media.giphy.com/media/3oz8xAFtqoOUUrsh7W/giphy.gif",
+  "https://media.giphy.com/media/5xtDarEbYqD1pVxVZio/giphy.gif",
+  "https://media.giphy.com/media/l2Je66zG6mAAZxgqI/giphy.gif",
+  "https://media.giphy.com/media/3o6Zt90lm0dkRB4ZAQ/giphy.gif",
 ];
+
+// Sentinel stored in qa_history.short_answer to flag out-of-syllabus rows.
+// These rows record question + timestamp + location for analytics but are
+// filtered out of the public Explore feed.
+const OUT_OF_SYLLABUS_MARKER = "__OUT_OF_SYLLABUS__";
 
 function buildSystemPrompt(context: string, episodeTitles: string[], allowNeedsContext: boolean): string {
   const promptPath = path.join(process.cwd(), "PROMPT.md");
@@ -149,12 +158,12 @@ ${context ? `Here are the most relevant excerpts from The Gyaan Project transcri
 
 ${referencesInstruction}
 
-HARD LIMIT: The "long" answer must be 120 words or fewer. Count every word. Stop writing before you reach 120 words. Do not exceed this under any circumstances.
+HARD LIMIT: The "long" answer must be 130 words or fewer. Count every word. Stop writing before you reach 130 words. Do not exceed this under any circumstances.
 
 Respond ONLY in this exact JSON format, with no text outside it:
 {
   "short": "The koan here (2–5 words)",
-  "long": "The detailed answer here, using \\n\\n to separate paragraphs. Maximum 120 words.",
+  "long": "The detailed answer here, using \\n\\n to separate paragraphs. Maximum 130 words.",
   "references": [
     { "name": "Guest Name", "profession": "Profession" }
   ]
@@ -215,19 +224,27 @@ export async function POST(req: NextRequest) {
     }
 
 
-    // Strip any URLs or "Learn more" lines from long answer
-    if (parsed.long) {
-      parsed.long = parsed.long
+    // Strip URLs, "Learn more" lines, em-dashes, and hyphen dashes
+    function sanitize(text: string): string {
+      return text
         .replace(/\n*\s*Learn more[:\s].*$/gim, "")
         .replace(/https?:\/\/\S+/g, "")
+        .replace(/—/g, ",")      // em-dash to comma
+        .replace(/–/g, ",")      // en-dash to comma
+        .replace(/ - /g, ", ")   // spaced hyphen to comma
+        .replace(/ -\s/g, ", ")
+        .replace(/\s-\s/g, ", ")
         .trim();
     }
 
-    // Hard enforce 120-word limit on long answer
+    if (parsed.long) parsed.long = sanitize(parsed.long);
+    if (parsed.short) parsed.short = sanitize(parsed.short);
+
+    // Hard enforce 130-word limit on long answer
     if (parsed.long) {
       const words = parsed.long.split(/\s+/);
-      if (words.length > 120) {
-        const truncated = words.slice(0, 120).join(" ");
+      if (words.length > 130) {
+        const truncated = words.slice(0, 130).join(" ");
         // Try to end at a sentence boundary
         const lastSentence = Math.max(
           truncated.lastIndexOf(". "),
@@ -245,7 +262,25 @@ export async function POST(req: NextRequest) {
     }
 
     if (parsed.outOfSyllabus) {
-      const funUrl = FUN_URLS[Math.floor(Math.random() * FUN_URLS.length)];
+      const funUrl = FUN_GIFS[Math.floor(Math.random() * FUN_GIFS.length)];
+
+      // Record the question (no answer) so we can see what people are asking
+      // that falls outside the archive. Flagged with sentinel short_answer.
+      try {
+        await supabase.from("qa_history").insert({
+          question: question.trim(),
+          short_answer: OUT_OF_SYLLABUS_MARKER,
+          long_answer: "",
+        });
+      } catch {
+        // non-fatal
+      }
+
+      const city = decodeURIComponent(req.headers.get("x-vercel-ip-city") ?? "unknown");
+      const country = req.headers.get("x-vercel-ip-country") ?? "";
+      const location = country ? `${city}, ${country}` : city;
+      logToSheet(`[OUT OF SYLLABUS] ${question.trim()}`, location).catch(() => {});
+
       return NextResponse.json({ outOfSyllabus: true, funUrl });
     }
 

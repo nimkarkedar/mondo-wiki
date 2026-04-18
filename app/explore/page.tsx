@@ -221,13 +221,13 @@ export default function Explore() {
                             onClick={() => handleVote(item, "up")}
                             className="text-sm px-4 py-2 rounded-full border border-gray-200 text-[#656565] hover:border-black hover:text-black transition-colors whitespace-nowrap"
                           >
-                            👍 {item.thumbsUp > 0 ? item.thumbsUp : "Makes sense"}
+                            👍 Agree
                           </button>
                           <button
                             onClick={() => handleVote(item, "down")}
                             className="text-sm px-4 py-2 rounded-full border border-gray-200 text-[#656565] hover:border-black hover:text-black transition-colors whitespace-nowrap"
                           >
-                            👎 {item.thumbsDown > 0 ? item.thumbsDown : "Non-sense"}
+                            👎 Disagree
                           </button>
                         </>
                       )}
