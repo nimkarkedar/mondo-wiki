@@ -221,7 +221,7 @@ export default function Home() {
       <div className="flex-1 flex flex-col md:flex-row w-full">
 
         {/* Left panel — orange */}
-        <section className="w-full md:w-1/2 bg-[#ff6400] flex flex-col">
+        <section className="w-full md:w-[30%] bg-[#ff6400] flex flex-col">
           {/* Header */}
           <header className="w-full flex items-stretch justify-between pl-0 pr-6 md:pr-10">
             <button
@@ -307,7 +307,7 @@ export default function Home() {
         </section>
 
         {/* Right panel — black */}
-        <section className="relative w-full md:w-1/2 bg-[#111111] flex flex-col">
+        <section className="relative w-full md:w-[70%] bg-[#111111] flex flex-col">
           {!answer && !loading ? (
             <div className="flex-1 flex items-center justify-center px-6 md:px-10 py-16 md:py-14">
               <p className="text-white text-base text-center">
