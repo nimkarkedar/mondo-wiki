@@ -186,151 +186,129 @@ export default function Home() {
     });
   }
 
+  const hasAnswer = answer && !loading && !answer.isError && !answer.needsContext && !answer.outOfSyllabus;
+
   return (
-    <div className="min-h-screen w-screen flex flex-col items-center justify-start md:justify-center p-0 md:p-8 md:gap-4 pb-8 md:pb-0">
-    <div className="flex flex-col md:flex-row w-full md:max-w-[1200px] md:rounded-2xl md:overflow-hidden md:shadow-2xl min-h-screen md:min-h-0 md:h-[88vh]">
+    <div className="min-h-screen w-full bg-white md:bg-gray-100 flex flex-col items-center md:py-10">
+    <div className="w-full md:max-w-[1200px] md:mx-8 bg-white md:rounded-3xl md:shadow-2xl md:overflow-hidden flex flex-col flex-1">
 
-      {/* ── Orange Pane ── */}
-      <div
-        className="w-full md:w-[50%] md:h-full flex flex-col px-8 md:px-10 py-10"
-        style={{
-          background: "linear-gradient(135deg, #ff9a3c 0%, #ff6900 35%, #e85000 65%, #ff7a10 100%)",
-          backgroundSize: "300% 300%",
-          animation: "orangeFlow 12s ease infinite",
-        }}
-      >
+      {/* Header */}
+      <header className="w-full border-b border-gray-200 flex items-stretch justify-between pl-6 md:pl-10 pr-6 md:pr-10">
+        <button
+          type="button"
+          onClick={() => {
+            setQuestion("");
+            setAnswer(null);
+            setFeedback(null);
+            setLoading(false);
+            setToast(null);
+            if (loadingTimerRef.current) clearInterval(loadingTimerRef.current);
+          }}
+          className="focus:outline-none shrink-0 flex items-center px-5 md:px-7 py-0 md:py-[10px] -mb-px cursor-pointer"
+          style={{ backgroundColor: "#ff6900" }}
+        >
+          <Image
+            src="/asktgp-logo.svg"
+            alt="Ask TGP"
+            width={156}
+            height={44}
+            priority
+            className="h-[60px] md:h-[58px] w-auto"
+          />
+        </button>
+        <nav className="flex items-center gap-8 md:gap-12 text-black text-lg">
+          <Link href="/about" className="hover:opacity-70 transition-opacity">About</Link>
+          <Link href="/donate" className="hover:opacity-70 transition-opacity">Donate</Link>
+        </nav>
+      </header>
 
-        {/* Logo + tagline + About */}
-        <div className="mb-8 md:mb-10">
-          <div className="flex items-start justify-between">
-            <button
-              onClick={() => { setQuestion(""); setAnswer(null); setFeedback(null); }}
-              className="focus:outline-none"
-            >
-              <Image
-                src="/asktgp-logo.svg"
-                alt="Ask TGP"
-                width={210}
-                height={58}
-                priority
-              />
-            </button>
-            <a href="/about" className="text-white font-semibold text-base mt-2">
-              About
-            </a>
-          </div>
-          <p className="text-black text-sm mt-2">
-            Powered by{" "}
-            <a
-              href="https://thegyaanproject.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
-              The Gyaan Project
-            </a>
-          </p>
-        </div>
+      {/* Main two-column */}
+      <main className="flex-1 flex flex-col md:flex-row w-full">
 
-        {/* Form area */}
-        <div className="flex flex-col gap-5">
-          <h1 className="text-white text-4xl md:text-5xl font-bold leading-[1.1]">
-            Ask any question on design and art
-          </h1>
-          <p className="text-white text-lg leading-snug">
-            Expect philosophical answers. These are fetched from The Gyaan Project&apos;s 300+ conversations using AI. It can make mistakes.
-          </p>
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3 mt-1">
-            {/* Input with typewriter placeholder */}
+        {/* Left column — question + submit */}
+        <div className="w-full md:w-1/2 px-8 md:px-10 py-10 md:py-14">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <div className="flex flex-col gap-3">
+            <p className="font-bold text-base text-black select-none">Ask any question on design and art</p>
             <div className="relative">
               <input
                 type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                className="w-full rounded-lg px-5 py-5 pr-12 text-black text-base bg-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-0"
+                className="w-full rounded-2xl border border-gray-300 px-6 py-[26px] pr-14 text-black text-base bg-white focus:outline-none focus:border-black"
               />
-              {/* Clear button — shown when user has typed */}
               {question && (
                 <button
                   type="button"
                   onClick={() => { setQuestion(""); setAnswer(null); setFeedback(null); }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-[#656565] hover:text-gray-600 transition-colors"
                   aria-label="Clear"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="12" fill="black" />
                     <line x1="7.5" y1="7.5" x2="16.5" y2="16.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
                     <line x1="16.5" y1="7.5" x2="7.5" y2="16.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
                   </svg>
                 </button>
               )}
-              {/* Fake animated placeholder — hidden when user has typed */}
               {!question && (
-                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-base pointer-events-none select-none">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#656565] text-base pointer-events-none select-none">
                   {typedText}
                   <span className="cursor ml-[1px]">|</span>
                 </span>
               )}
             </div>
+            </div>
 
-            <button
-              type="submit"
-              disabled={loading || !question.trim()}
-              className="w-full bg-black text-white text-base font-semibold py-4 rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? loadingLabel : "Submit"}
-            </button>
-            <p className="text-white text-sm text-center mt-1">
-              Expect insights, not always practical takeaways.
-            </p>
+            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+              <button
+                type="submit"
+                disabled={loading || !question.trim()}
+                className="w-full md:w-auto bg-black text-white text-xl font-semibold px-12 py-4 rounded-full cursor-pointer hover:bg-[#FF6400] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {loading ? loadingLabel : "Submit"}
+              </button>
+              <div className="text-black text-center md:text-left">
+                <p className="font-bold text-base">Expect a philosophical answer.</p>
+                <p className="text-[#656565] text-base">
+                  Answers powered by{" "}
+                  <a
+                    href="https://thegyaanproject.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    The Gyaan Project
+                  </a>
+                </p>
+              </div>
+            </div>
           </form>
         </div>
 
-        <div className="hidden md:flex flex-1" />
+        {/* Dashed divider — horizontal on mobile, vertical on desktop */}
+        <div className="md:hidden border-t border-dashed border-gray-300 mx-8" />
+        <div className="hidden md:block border-l border-dashed border-gray-300" />
 
-      </div>
-
-      {/* ── White Pane ── */}
-      <div className="relative w-full md:w-[50%] bg-white flex flex-col min-h-[50vh] md:min-h-0">
-
-        {/* Copy + Share buttons — sit on top of the pane, outside scroll */}
-        {answer && !loading && !answer.outOfSyllabus && (
-          <div className="absolute top-8 right-8 md:right-10 flex items-center gap-1 z-10">
-            {/* Copy */}
-            <button
-              onClick={handleCopy}
-              title="Copy answer"
-              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-black/40 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-              </svg>
-            </button>
-          </div>
-        )}
-
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-8 md:px-14 py-10 flex flex-col">
+        {/* Right column — answer */}
+        <div className="relative w-full md:w-1/2 px-8 md:px-10 py-10 md:py-14 flex flex-col">
 
           {!answer && !loading && (
             <>
-              <p className="text-gray-300 text-lg select-none">Your answer will appear here.</p>
+              <p className="text-[#656565] text-base select-none text-center md:text-left">Your answer will appear here</p>
               <div className="flex-1 flex items-center justify-center py-16 md:py-0">
                 <Link
                   href="/explore"
-                  className="explore-card block border-2 rounded-xl px-6 py-5 group w-full max-w-sm"
+                  className="explore-card block border-2 rounded-full px-8 py-4 group"
                 >
-                  <p className="font-semibold text-[18px] text-black group-hover:text-gray-700 transition-colors">See what others are asking</p>
-                  <p className="text-sm text-gray-400 mt-1">Browse questions from the last 10 days →</p>
+                  <p className="text-[16px] text-black group-hover:text-gray-700 transition-colors">See what others are asking →</p>
                 </Link>
               </div>
             </>
           )}
 
           {loading && (
-            <div className="flex-1 flex items-center justify-center text-gray-400 text-base animate-pulse py-16 md:py-0">
+            <div className="flex-1 flex items-center justify-start text-[#656565] text-base animate-pulse">
               Distilling wisdom…
             </div>
           )}
@@ -338,102 +316,138 @@ export default function Home() {
           {answer && !loading && answer.isError && (
             <div key="error" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-3 max-w-xl">
               <p className="text-2xl">😕</p>
-              <p className="text-gray-500 text-base leading-relaxed">{answer.long}</p>
+              <p className="text-[#656565] text-base leading-relaxed">{answer.long}</p>
             </div>
           )}
 
           {answer && !loading && answer.needsContext && (
             <div key="needs-context" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-4 max-w-xl">
               <p className="text-2xl">🤔</p>
-              <p className="text-black text-[18px] font-bold leading-snug">Can you be more specific?</p>
-              <p className="text-gray-500 text-base leading-relaxed">{answer.hint}</p>
+              <p className="text-black text-base font-bold leading-snug">Can you be more specific?</p>
+              <p className="text-[#656565] text-base leading-relaxed">{answer.hint}</p>
             </div>
           )}
 
-          {answer && !loading && !answer.isError && !answer.needsContext && (
-            answer.outOfSyllabus ? (
-              <div key="out-of-syllabus" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-5 max-w-xl">
-                <p className="text-4xl">🙃</p>
-                <p className="text-black text-[18px] font-bold leading-snug">
-                  This question is out of syllabus.
-                </p>
-                <p className="text-gray-500 text-base leading-relaxed">
-                  Our oracle only speaks design and art. Your question has wandered somewhere the archive has never been.
-                </p>
-                {answer.funUrl && (
-                  <a
-                    href={answer.funUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-base font-semibold underline text-black hover:text-gray-600 transition-colors"
-                  >
-                    Have Fun →
-                  </a>
-                )}
-              </div>
-            ) : (
-              <div key={answer.short} className="flex flex-col gap-7 max-w-xl">
-                <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }}>
-                  <p className="font-bold text-[18px] text-black">Short answer:</p>
-                  <p className="text-[18px] font-normal text-black leading-snug mt-1">
-                    {answer.short}
-                  </p>
-                </div>
+          {answer && !loading && answer.outOfSyllabus && (
+            <div key="out-of-syllabus" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-5 max-w-xl">
+              <p className="text-4xl">🙃</p>
+              <p className="text-black text-base font-bold leading-snug">
+                This question is out of syllabus.
+              </p>
+              <p className="text-[#656565] text-base leading-relaxed">
+                Our oracle only speaks design and art. Your question has wandered somewhere the archive has never been.
+              </p>
+              {answer.funUrl && (
+                <a
+                  href={answer.funUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-base font-semibold underline text-black hover:text-gray-600 transition-colors"
+                >
+                  Have Fun →
+                </a>
+              )}
+            </div>
+          )}
 
-                <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 160ms forwards" }}>
-                  <p className="font-bold text-[18px] text-black mb-3">Long answer:</p>
-                  <div className="text-black text-[18px] font-normal leading-relaxed space-y-5">
-                    {answer.long.split("\n\n").map((para, i) => (
-                      <p key={i}>{para}</p>
+          {hasAnswer && (
+            <div key={answer.short} className="flex flex-col gap-6 max-w-xl">
+              <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }}>
+                <p className="font-bold text-base text-black mb-2">Short answer:</p>
+                <p className="text-base font-normal text-black leading-snug">
+                  {answer.short}
+                </p>
+              </div>
+
+              <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 160ms forwards" }}>
+                <p className="font-bold text-base text-black mb-3">Long answer:</p>
+                <div className="text-black text-base font-normal leading-relaxed space-y-4">
+                  {answer.long.split("\n\n").map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
+              </div>
+
+              {answer.references && answer.references.length > 0 && (
+                <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 240ms forwards" }}>
+                  <p className="text-[#656565] text-[15px] mb-2">Further exploration in…</p>
+                  <ul className="list-disc pl-5 text-black text-[16px] space-y-1">
+                    {answer.references.map((ref, i) => (
+                      <li key={i}>
+                        <span className="underline">{ref.name}</span>
+                        {ref.profession ? ` — ${ref.profession}` : ""}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
+              )}
 
-                {/* Feedback */}
-                <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 300ms forwards" }} className="flex items-center gap-3 pt-2">
-                  {feedback ? (
-                    <p className="text-sm text-gray-400">Thanks for the feedback.</p>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => sendFeedback("makes_sense")}
-                        className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors whitespace-nowrap"
-                      >
-                        👍 Makes sense
-                      </button>
-                      <button
-                        onClick={() => sendFeedback("doesnt_make_sense")}
-                        className="text-sm px-4 py-2 rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors whitespace-nowrap"
-                      >
-                        👎 Non-sense
-                      </button>
-                    </>
-                  )}
-                </div>
+              <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 300ms forwards" }} className="flex items-center gap-2 pt-2">
+                {feedback ? (
+                  <p className="text-sm text-[#656565]">Thanks for the feedback.</p>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => sendFeedback("makes_sense")}
+                      className="text-sm px-4 py-2 rounded-full border border-gray-300 text-black hover:border-black transition-colors whitespace-nowrap"
+                    >
+                      👍 Agree
+                    </button>
+                    <button
+                      onClick={() => sendFeedback("doesnt_make_sense")}
+                      className="text-sm px-4 py-2 rounded-full border border-gray-300 text-black hover:border-black transition-colors whitespace-nowrap"
+                    >
+                      👎 Disagree
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={handleCopy}
+                  title="Copy answer"
+                  className="p-2 rounded-full border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-colors"
+                  aria-label="Copy"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 12V4a1 1 0 0 1 1-1h8" />
+                    <path d="M10 8h9a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H10a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleCopy}
+                  title="Share"
+                  className="p-2 rounded-full border border-gray-300 text-gray-600 hover:border-black hover:text-black transition-colors"
+                  aria-label="Share"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 3v12" />
+                    <path d="m8 7 4-4 4 4" />
+                    <path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" />
+                  </svg>
+                </button>
               </div>
-            )
+
+              <p className="text-sm text-[#656565] pt-4">
+                AI can make mistakes. Use your <span className="underline">viveka</span>.
+              </p>
+            </div>
           )}
 
-        </div>{/* end scrollable */}
+        </div>
 
-        {/* Toast — pinned to bottom of pane, never scrolls away */}
-        {toast && (
-          <div className="absolute bottom-6 left-0 right-0 flex justify-center px-8 pointer-events-none">
-            <div
-              style={{ animation: "toastShow 5s ease forwards" }}
-              className="bg-black text-white text-sm px-5 py-2.5 rounded-full shadow-lg"
-            >
-              {toast}
-            </div>
+      </main>
+
+      {toast && (
+        <div className="fixed bottom-16 left-0 right-0 flex justify-center px-8 pointer-events-none z-50">
+          <div
+            style={{ animation: "toastShow 5s ease forwards" }}
+            className="bg-black text-white text-sm px-5 py-2.5 rounded-full shadow-lg"
+          >
+            {toast}
           </div>
-        )}
-
-      </div>
-
+        </div>
+      )}
     </div>
-    <p className="text-xs text-black/40 text-center px-8 md:px-0 pt-6 md:pt-2">
-      © 2026 The Gyaan Project. All rights reserved.
-    </p>
+    <p className="text-xs text-[#656565] text-center mt-6 pb-6 px-6">© 2026 The Gyaan Project. All rights reserved.</p>
     </div>
   );
 }
