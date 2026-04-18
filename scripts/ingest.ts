@@ -61,11 +61,15 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-function chunkText(text: string, wordsPerChunk = 500): string[] {
+function chunkText(text: string, wordsPerChunk = 750, overlap = 100): string[] {
   const words = text.split(/\s+/).filter(Boolean);
   const chunks: string[] = [];
-  for (let i = 0; i < words.length; i += wordsPerChunk) {
-    chunks.push(words.slice(i, i + wordsPerChunk).join(" "));
+  const step = Math.max(1, wordsPerChunk - overlap);
+  for (let i = 0; i < words.length; i += step) {
+    const slice = words.slice(i, i + wordsPerChunk);
+    if (slice.length === 0) break;
+    chunks.push(slice.join(" "));
+    if (i + wordsPerChunk >= words.length) break;
   }
   return chunks;
 }
@@ -149,15 +153,23 @@ async function main() {
       continue;
     }
 
-    // Check if already ingested
-    const { count } = await supabase
-      .from("transcript_chunks")
-      .select("*", { count: "exact", head: true })
-      .eq("file_name", file.name);
-
-    if (count && count > 0) {
-      console.log(`✅ Already ingested: ${file.name}`);
-      continue;
+    // If REINGEST=true, delete existing rows for this file and re-ingest.
+    // Otherwise skip files already in the DB.
+    if (process.env.REINGEST === "true") {
+      const { error: delErr } = await supabase
+        .from("transcript_chunks")
+        .delete()
+        .eq("file_name", file.name);
+      if (delErr) console.error(`   ⚠️  Could not wipe existing: ${delErr.message}`);
+    } else {
+      const { count } = await supabase
+        .from("transcript_chunks")
+        .select("*", { count: "exact", head: true })
+        .eq("file_name", file.name);
+      if (count && count > 0) {
+        console.log(`✅ Already ingested: ${file.name}`);
+        continue;
+      }
     }
 
     console.log(`⬇️  Downloading: ${file.name}`);
@@ -190,15 +202,22 @@ async function main() {
     const chunks = chunkText(text);
     console.log(`   📝 ${chunks.length} chunks — embedding...`);
 
-    // Embed in batches of 10
+    // Embed in batches of 10.
+    // We prepend the episode title to each chunk at embed-time so semantic
+    // search picks up topical/person queries even when the chunk body doesn't
+    // use the exact words (e.g. "design a book" → Ahlawat Gunjan's episode).
+    // The stored `content` column stays clean (no prepended title) so the
+    // prompt context remains readable.
+    const episodeTitle = file.name.replace(/\.[^.]+$/, "");
     const BATCH = 10;
     for (let i = 0; i < chunks.length; i += BATCH) {
       const batch = chunks.slice(i, i + BATCH);
-      const embeddings = await embedText(batch);
+      const embedInputs = batch.map((c) => `${episodeTitle}\n\n${c}`);
+      const embeddings = await embedText(embedInputs);
 
       const rows = batch.map((content, j) => ({
         file_name: file.name,
-        episode_title: file.name.replace(/\.[^.]+$/, ""),
+        episode_title: episodeTitle,
         chunk_index: i + j,
         content,
         embedding: embeddings[j],
