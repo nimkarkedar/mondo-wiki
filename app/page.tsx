@@ -47,15 +47,43 @@ export default function Home() {
   const loadingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const LOADING_LABELS = [
-    "Asking the elders…",
-    "Brewing the wisdom…",
+    "Thinking…",
+    "Asking the Oracle…",
+    "Checking with past 7 generations…",
+    "Contemplating…",
+    "Checking archives…",
+    "Finding patterns…",
+    "Connecting dots…",
+    "Synthesising…",
+    "Feeling lost…",
+    "Regaining consciousness…",
+    "Figuring out…",
+    "Going on tangent…",
+    "Course correcting…",
+    "Wondering what life is this…",
+    "Trying to stay in the present with your question…",
+    "Day dreaming…",
+    "Ah, think I am close to getting an answer…",
+    "Lost in the weeds…",
+    "Wandering and wondering at the same time…",
+    "Asking neighbours…",
+    "Looking out…",
     "Consulting 300 souls…",
+    "Brewing the wisdom…",
     "Shaking the oracle…",
     "Chasing the muse…",
     "Untangling the cosmos…",
     "Reading between the lines…",
     "Waking up the archive…",
     "Summoning the Gyaan…",
+    "Flipping through dog-eared notebooks…",
+    "Listening to the silence between words…",
+    "Dusting off an old cassette…",
+    "Asking the ghost of a designer…",
+    "Holding the thought gently…",
+    "Letting it simmer…",
+    "Tracing the thread…",
+    "Whispering to the muse…",
     "Almost there, maybe…",
   ];
 
@@ -260,29 +288,36 @@ export default function Home() {
             </div>
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-              <button
-                type="submit"
-                disabled={loading || !question.trim()}
-                className="w-full md:w-auto bg-black text-white text-xl font-semibold px-12 py-4 rounded-full cursor-pointer hover:bg-[#FF6400] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-              >
-                {loading ? loadingLabel : "Submit"}
-              </button>
-              <div className="text-black text-center md:text-left">
-                <p className="font-bold text-base">Expect a philosophical answer.</p>
-                <p className="text-[#656565] text-base">
-                  Answers powered by{" "}
-                  <a
-                    href="https://thegyaanproject.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline"
-                  >
-                    The Gyaan Project
-                  </a>
-                </p>
+            {loading ? (
+              <div className="flex items-center gap-4">
+                <div className="w-6 h-6 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
+                <p className="text-black text-base font-bold">{loadingLabel}</p>
               </div>
-            </div>
+            ) : (
+              <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+                <button
+                  type="submit"
+                  disabled={!question.trim()}
+                  className="w-full md:w-auto bg-black text-white text-xl font-semibold px-12 py-4 rounded-full cursor-pointer hover:bg-[#FF6400] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  Submit
+                </button>
+                <div className="text-black text-center md:text-left">
+                  <p className="font-bold text-base">Expect a philosophical answer.</p>
+                  <p className="text-[#656565] text-base">
+                    Answers powered by{" "}
+                    <a
+                      href="https://thegyaanproject.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      The Gyaan Project
+                    </a>
+                  </p>
+                </div>
+              </div>
+            )}
           </form>
         </div>
 
