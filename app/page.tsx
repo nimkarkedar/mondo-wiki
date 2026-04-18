@@ -315,7 +315,7 @@ export default function Home() {
         </section>
 
         {/* Right panel — black */}
-        <section className="relative w-full md:w-[70%] bg-[#111111] flex flex-col">
+        <section className="relative w-full flex-1 md:flex-none md:w-[70%] bg-[#111111] flex flex-col">
           {!answer && !loading ? (
             <div className="flex-1 flex items-center justify-center px-6 md:px-10 py-16 md:py-14">
               <p className="text-white text-base text-center">
