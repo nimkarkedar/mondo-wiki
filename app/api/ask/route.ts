@@ -145,12 +145,19 @@ ${episodeTitles.map((t) => `- ${t}`).join("\n")}
 In the "references" array, include each name exactly as listed above, and pair it with their primary profession as you can determine from the transcript content (e.g. Designer, Architect, Artist, Illustrator, Typographer, Filmmaker, Writer, Musician, Photographer — one or two words). If a title looks like a book, paper, or document title rather than a person's name, exclude it from references.`
     : `Use an empty "references" array.`;
 
-  const outOfSyllabusRule = allowOutOfSyllabus
-    ? `OUT-OF-SYLLABUS RULE: Only if the question is clearly and completely unrelated to design, art, creativity, architecture, craft, or creative practice (e.g. sports scores, cooking recipes, stock prices, politics, chemistry), respond ONLY with:
+  const outOfSyllabusRule = `GROUNDING RULE — read carefully:
+
+You may ONLY answer from the excerpts provided below. You may NOT use general knowledge, general design wisdom, or anything outside these excerpts. If the excerpts do not contain enough material to give a grounded, specific answer to the question, respond ONLY with:
 { "outOfSyllabus": true }
 
-Do NOT use this escape for questions that are merely vague, broad, or philosophical. Do NOT use this escape just because the provided excerpts don't directly match — the archive is deep and your job is to draw the closest relevant wisdom. If in doubt, answer.`
-    : `IMPORTANT: You MUST answer this question. The question is about design, art, or creative practice, and relevant material is available in the excerpts below. Do NOT return { "outOfSyllabus": true } under any circumstances. Draw the closest relevant wisdom from the excerpts. If the excerpts are only tangentially related, use them as a springboard and answer from the spirit of creative practice they represent.`;
+Return outOfSyllabus when:
+- The question is unrelated to design, art, or creative practice (e.g. sports, politics, recipes).
+- The excerpts are present but genuinely do not address the question — even loosely. Do not stretch unrelated excerpts into an answer.
+- You would have to invent, generalise, or speak from outside the archive to answer.
+
+Do NOT return outOfSyllabus just because the excerpts require interpretation. If there is a plausible thread in the excerpts that connects to the question, draw from it. But never fabricate, never bluff, never "puff" an answer using general AI knowledge.
+
+When in doubt between answering weakly and returning outOfSyllabus — choose outOfSyllabus.`;
 
   return `You are the oracle of Ask TGP — a distillation of wisdom from The Gyaan Project's full knowledge base: 300+ podcast conversations with artists, designers, and creative thinkers, alongside books, white papers, and presentations on design and art.
 
@@ -204,12 +211,10 @@ export async function POST(req: NextRequest) {
     // Search for relevant transcript chunks
     const chunks = await getRelevantChunks(question);
 
-    // If we retrieved content from the archive, the question is answerable.
-    // This is the single source of truth for whether to allow out-of-syllabus.
-    // We only flag out-of-syllabus when the archive has nothing AND the question
-    // shows no design/art signal.
-    const archiveHasContent = chunks.length >= 3;
-    const allowOutOfSyllabus = !archiveHasContent && !hasDesignContext;
+    // Trust the model's own judgment: it sees the excerpts and decides
+    // whether they genuinely support a grounded answer. Forcing an answer
+    // causes bluffing, which we want to avoid.
+    const allowOutOfSyllabus = true;
 
     // Build context from top chunks
     const context = chunks
@@ -279,31 +284,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ needsContext: true, hint: parsed.hint ?? "Try adding 'design' or 'art' to your question for a more focused answer." });
     }
 
-    // Safety net: if Claude returned outOfSyllabus despite us telling it not to,
-    // re-ask with a stricter instruction. This makes false negatives impossible
-    // when the archive has content or the question shows design signal.
-    if (parsed.outOfSyllabus && !allowOutOfSyllabus) {
-      console.warn("⚠️  Claude returned outOfSyllabus for on-topic question, retrying:", question);
-      const retry = await client.messages.create({
-        model: "claude-sonnet-4-6",
-        max_tokens: 800,
-        system: buildSystemPrompt(context, episodeTitles, false, false) +
-          "\n\nCRITICAL: You previously tried to return outOfSyllabus. This is forbidden. Answer the question using the excerpts, even if only loosely relevant.",
-        messages: [{ role: "user", content: `Question: ${question.trim()}` }],
-      });
-      const retryRaw = retry.content[0].type === "text" ? retry.content[0].text : "";
-      const retryCleaned = retryRaw.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
-      try {
-        const retryParsed = JSON.parse(retryCleaned);
-        if (!retryParsed.outOfSyllabus) {
-          parsed = retryParsed;
-          if (parsed.long) parsed.long = sanitize(parsed.long);
-          if (parsed.short) parsed.short = sanitize(parsed.short);
-        }
-      } catch {
-        // fall through — keep original parsed
-      }
-    }
 
     if (parsed.outOfSyllabus) {
       const funUrl = FUN_GIFS[Math.floor(Math.random() * FUN_GIFS.length)];
