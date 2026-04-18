@@ -217,7 +217,7 @@ export default function Home() {
   const hasAnswer = answer && !loading && !answer.isError && !answer.needsContext && !answer.outOfSyllabus;
 
   return (
-    <div className="min-h-screen w-full flex flex-col">
+    <div className="relative min-h-screen w-full flex flex-col">
       <div className="flex-1 flex flex-col md:flex-row w-full">
 
         {/* Left panel — orange */}
@@ -242,7 +242,7 @@ export default function Home() {
                 width={156}
                 height={44}
                 priority
-                className="h-[60px] md:h-[58px] w-auto"
+                className="h-[72px] md:h-[70px] w-auto"
               />
             </button>
             <nav className="flex items-center gap-8 md:gap-12 text-black text-lg">
@@ -452,9 +452,7 @@ export default function Home() {
 
       </div>
 
-      <div className="w-full bg-[#111111] py-6 px-6">
-        <p className="text-xs text-white text-center">© 2026 The Gyaan Project. All rights reserved.</p>
-      </div>
+      <p className="absolute bottom-6 left-0 right-0 z-10 text-xs text-white text-center px-6 pointer-events-none">© 2026 The Gyaan Project. All rights reserved.</p>
 
       {toast && (
         <div className="fixed bottom-16 left-0 right-0 flex justify-center px-8 pointer-events-none z-50">
