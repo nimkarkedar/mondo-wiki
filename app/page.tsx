@@ -329,7 +329,7 @@ export default function Home() {
               </p>
             </div>
           ) : (
-          <div className="flex-1 flex flex-col px-6 md:px-10 pt-10 md:pt-14 pb-10 md:pb-14">
+          <div className="flex-1 flex flex-col px-6 md:px-10 pt-10 md:pt-[85px] pb-10 md:pb-14">
 
             {loading && (
               <p className="text-white/60 text-base animate-pulse">Distilling wisdom…</p>
