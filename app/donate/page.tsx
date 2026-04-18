@@ -62,7 +62,7 @@ export default function Donate() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-white md:bg-[#ff6400] flex flex-col items-center md:py-10">
+    <div className="min-h-screen w-full bg-white md:bg-[#111111] flex flex-col items-center md:py-10">
     <div className="w-full md:max-w-[1200px] md:mx-8 bg-white md:rounded-3xl md:shadow-2xl md:overflow-hidden flex flex-col flex-1">
 
       {/* Header */}
