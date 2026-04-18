@@ -257,7 +257,8 @@ export default function Home() {
                 type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                className="w-full rounded-2xl border border-black/20 px-6 py-[26px] pr-14 text-black text-base bg-white focus:outline-none focus:border-black"
+                placeholder="Ask any question on design and art"
+                className="w-full rounded-2xl border border-black/20 px-6 py-[26px] pr-14 text-black text-base bg-white placeholder:text-[#656565] focus:outline-none focus:border-black"
               />
               {question && (
                 <button
@@ -272,12 +273,6 @@ export default function Home() {
                     <line x1="16.5" y1="7.5" x2="7.5" y2="16.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
                   </svg>
                 </button>
-              )}
-              {!question && (
-                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#656565] text-base pointer-events-none select-none">
-                  {typedText}
-                  <span className="cursor ml-[1px]">|</span>
-                </span>
               )}
             </div>
 
