@@ -217,7 +217,7 @@ export default function Home() {
   const hasAnswer = answer && !loading && !answer.isError && !answer.needsContext && !answer.outOfSyllabus;
 
   return (
-    <div className="min-h-screen w-full bg-white md:bg-gray-100 flex flex-col items-center md:py-10">
+    <div className="min-h-screen w-full bg-white md:bg-[#ff6400] flex flex-col items-center md:py-10">
     <div className="w-full md:max-w-[1200px] md:mx-8 bg-white md:rounded-3xl md:shadow-2xl md:overflow-hidden flex flex-col flex-1">
 
       {/* Header */}
@@ -480,7 +480,7 @@ export default function Home() {
         </div>
       )}
     </div>
-    <p className="text-xs text-[#656565] text-center mt-6 pb-6 px-6">© 2026 The Gyaan Project. All rights reserved.</p>
+    <p className="text-xs text-black md:text-white text-center mt-6 pb-6 px-6">© 2026 The Gyaan Project. All rights reserved.</p>
     </div>
   );
 }
