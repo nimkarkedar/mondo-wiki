@@ -251,7 +251,7 @@ export default function Home() {
             </nav>
           </header>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6 px-6 md:px-10 pt-10 md:pt-14 pb-10 md:pb-14">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-[14px] px-6 md:px-10 pt-10 md:pt-14 pb-10 md:pb-14">
             <div className="relative">
               <input
                 type="text"
@@ -292,11 +292,11 @@ export default function Home() {
                 <p className="text-black text-base font-bold">{loadingLabel}</p>
               </div>
             ) : (
-              <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+              <div className="flex flex-col gap-4">
                 <button
                   type="submit"
                   disabled={!question.trim()}
-                  className="w-full md:w-auto bg-black text-white text-xl font-semibold px-12 py-4 rounded-full cursor-pointer hover:bg-[#111111] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  className="w-full bg-black text-white text-xl font-semibold px-12 py-4 rounded-full cursor-pointer hover:bg-[#111111] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   Submit
                 </button>
