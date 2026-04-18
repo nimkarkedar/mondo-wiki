@@ -40,6 +40,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<"makes_sense" | "doesnt_make_sense" | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [focused, setFocused] = useState(false);
 
   const [typedText, setTypedText] = useState("");
   const [loadingLabel, setLoadingLabel] = useState("");
@@ -257,9 +258,21 @@ export default function Home() {
                 type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Ask any question on design and art"
-                className="w-full rounded-2xl border border-black/20 px-6 py-[26px] pr-14 text-black text-base bg-white placeholder:text-[#656565] focus:outline-none focus:border-black"
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                className={`w-full rounded-2xl border border-black/20 px-6 text-black text-base bg-white focus:outline-none focus:border-black transition-[padding] ${
+                  focused || question ? "pt-[34px] pb-[18px]" : "py-[26px]"
+                } pr-14`}
               />
+              <label
+                className={`absolute left-6 pointer-events-none select-none text-[#656565] transition-all duration-150 ${
+                  focused || question
+                    ? "top-2 text-xs"
+                    : "top-1/2 -translate-y-1/2 text-base"
+                }`}
+              >
+                {focused || question ? "Question" : "Ask any question on design and art"}
+              </label>
               {question && (
                 <button
                   type="button"
