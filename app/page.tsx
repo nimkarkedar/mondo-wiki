@@ -261,13 +261,13 @@ export default function Home() {
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
                 className={`w-full rounded-2xl border border-black/20 px-6 text-black text-base bg-white focus:outline-none focus:border-black transition-[padding] ${
-                  focused || question ? "pt-[34px] pb-[18px]" : "py-[26px]"
+                  focused || question ? "pt-[40px] pb-[14px]" : "py-[26px]"
                 } pr-14`}
               />
               <label
                 className={`absolute left-6 pointer-events-none select-none text-[#656565] transition-all duration-150 ${
                   focused || question
-                    ? "top-2 text-xs"
+                    ? "top-[14px] text-xs"
                     : "top-1/2 -translate-y-1/2 text-base"
                 }`}
               >
