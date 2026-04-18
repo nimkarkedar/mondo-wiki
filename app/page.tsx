@@ -259,9 +259,7 @@ export default function Home() {
                 onChange={(e) => setQuestion(e.target.value)}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
-                className={`w-full rounded-2xl border border-black/20 px-6 text-black text-base bg-white focus:outline-none focus:border-black transition-[padding] ${
-                  focused || question ? "pt-[40px] pb-[14px]" : "py-[26px]"
-                } pr-14`}
+                className="w-full rounded-2xl border border-black/20 px-6 pt-[40px] pb-[12px] pr-14 text-black text-base bg-white focus:outline-none focus:border-black"
               />
               <label
                 className={`absolute left-6 pointer-events-none select-none text-[#656565] transition-all duration-150 ${
