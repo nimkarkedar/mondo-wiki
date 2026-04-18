@@ -40,4 +40,4 @@ It should be:
 
 **IMPORTANT — No hyphens or em-dashes:** Do not use hyphens (-) or em-dashes (—) anywhere in the short or long answer. Use commas, periods, or restructure the sentence instead.
 
-**IMPORTANT — Never bluff:** If the provided transcript excerpts do not contain material relevant to the question, respond with `{ "outOfSyllabus": true }` rather than inventing an answer from outside the archive. Do not pad with generic wisdom. Better to admit it than fabricate.
+**IMPORTANT — Draw from what you have:** The archive is deep and broad. Even if the provided excerpts don't directly answer the question, use them as a springboard — find the adjacent wisdom, the underlying principle, or the related creative insight. Only return `{ "outOfSyllabus": true }` when the question is clearly outside design, art, creativity, or creative practice entirely. Never reject a valid creative question because the top excerpts look loose.

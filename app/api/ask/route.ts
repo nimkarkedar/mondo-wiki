@@ -89,7 +89,7 @@ async function getRelevantChunks(question: string) {
       .select("episode_title, content")
       .ilike("episode_title", `%${personName}%`)
       .order("chunk_index")
-      .limit(4);
+      .limit(6);
 
     if (personChunks && personChunks.length > 0) {
       return personChunks;
@@ -98,7 +98,7 @@ async function getRelevantChunks(question: string) {
 
   const { data, error } = await supabase.rpc("match_chunks", {
     query_embedding: embedding,
-    match_count: 3,
+    match_count: 10,
   });
 
   if (error) {
@@ -129,7 +129,12 @@ const FUN_GIFS = [
 // filtered out of the public Explore feed.
 const OUT_OF_SYLLABUS_MARKER = "__OUT_OF_SYLLABUS__";
 
-function buildSystemPrompt(context: string, episodeTitles: string[], allowNeedsContext: boolean): string {
+function buildSystemPrompt(
+  context: string,
+  episodeTitles: string[],
+  allowNeedsContext: boolean,
+  allowOutOfSyllabus: boolean
+): string {
   const promptPath = path.join(process.cwd(), "PROMPT.md");
   const promptDoc = fs.readFileSync(promptPath, "utf-8");
 
@@ -140,10 +145,16 @@ ${episodeTitles.map((t) => `- ${t}`).join("\n")}
 In the "references" array, include each name exactly as listed above, and pair it with their primary profession as you can determine from the transcript content (e.g. Designer, Architect, Artist, Illustrator, Typographer, Filmmaker, Writer, Musician, Photographer — one or two words). If a title looks like a book, paper, or document title rather than a person's name, exclude it from references.`
     : `Use an empty "references" array.`;
 
+  const outOfSyllabusRule = allowOutOfSyllabus
+    ? `OUT-OF-SYLLABUS RULE: Only if the question is clearly and completely unrelated to design, art, creativity, architecture, craft, or creative practice (e.g. sports scores, cooking recipes, stock prices, politics, chemistry), respond ONLY with:
+{ "outOfSyllabus": true }
+
+Do NOT use this escape for questions that are merely vague, broad, or philosophical. Do NOT use this escape just because the provided excerpts don't directly match — the archive is deep and your job is to draw the closest relevant wisdom. If in doubt, answer.`
+    : `IMPORTANT: You MUST answer this question. The question is about design, art, or creative practice, and relevant material is available in the excerpts below. Do NOT return { "outOfSyllabus": true } under any circumstances. Draw the closest relevant wisdom from the excerpts. If the excerpts are only tangentially related, use them as a springboard and answer from the spirit of creative practice they represent.`;
+
   return `You are the oracle of Ask TGP — a distillation of wisdom from The Gyaan Project's full knowledge base: 300+ podcast conversations with artists, designers, and creative thinkers, alongside books, white papers, and presentations on design and art.
 
-IMPORTANT: First, judge whether this question is genuinely about design, art, creativity, or creative practice. Questions asking to summarise or describe a specific guest's episode from The Gyaan Project are ALWAYS valid — treat them as an invitation to distil that person's ideas and perspective. If the question is completely unrelated (e.g. sports, cooking, finance, politics, science, math), respond ONLY with:
-{ "outOfSyllabus": true }
+${outOfSyllabusRule}
 
 ${allowNeedsContext ? `AMBIGUOUS QUESTIONS: If the question has no design or art keywords and is too vague to answer (e.g. "Which is better?", "How do I start?", "What should I choose?"), respond ONLY with:
 { "needsContext": true, "hint": "A one-sentence friendly suggestion asking them to specify the design or art context." }
@@ -188,10 +199,17 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const hasDesignContext = /design|art|architect|creative|creativity|craft|typography|illustration|photography|film|music|theatre|dance|paint|sculpt|brand|ux|ui|summaris|summariz|episode|gyaan|tgp/i.test(question);
+    const hasDesignContext = /design|art|artist|architect|creative|creativity|craft|typography|type\b|illustration|illustrat|photograph|film|cinema|music|theatre|dance|paint|sculpt|brand|logo|identity|ux|ui|product|studio|maker|making|aesthetic|culture|cultural|writer|writing|poet|theatre|performance|summaris|summariz|episode|gyaan|tgp|material|space|craft|process|practice|inspiration|muse|voice|style|taste|vision|critique|feedback|client|brief|career|portfolio/i.test(question);
 
     // Search for relevant transcript chunks
     const chunks = await getRelevantChunks(question);
+
+    // If we retrieved content from the archive, the question is answerable.
+    // This is the single source of truth for whether to allow out-of-syllabus.
+    // We only flag out-of-syllabus when the archive has nothing AND the question
+    // shows no design/art signal.
+    const archiveHasContent = chunks.length >= 3;
+    const allowOutOfSyllabus = !archiveHasContent && !hasDesignContext;
 
     // Build context from top chunks
     const context = chunks
@@ -208,7 +226,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 800,
-      system: buildSystemPrompt(context, episodeTitles, !hasDesignContext),
+      system: buildSystemPrompt(context, episodeTitles, !hasDesignContext, allowOutOfSyllabus),
       messages: [{ role: "user", content: `Question: ${question.trim()}` }],
     });
 
@@ -259,6 +277,32 @@ export async function POST(req: NextRequest) {
 
     if (parsed.needsContext) {
       return NextResponse.json({ needsContext: true, hint: parsed.hint ?? "Try adding 'design' or 'art' to your question for a more focused answer." });
+    }
+
+    // Safety net: if Claude returned outOfSyllabus despite us telling it not to,
+    // re-ask with a stricter instruction. This makes false negatives impossible
+    // when the archive has content or the question shows design signal.
+    if (parsed.outOfSyllabus && !allowOutOfSyllabus) {
+      console.warn("⚠️  Claude returned outOfSyllabus for on-topic question, retrying:", question);
+      const retry = await client.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 800,
+        system: buildSystemPrompt(context, episodeTitles, false, false) +
+          "\n\nCRITICAL: You previously tried to return outOfSyllabus. This is forbidden. Answer the question using the excerpts, even if only loosely relevant.",
+        messages: [{ role: "user", content: `Question: ${question.trim()}` }],
+      });
+      const retryRaw = retry.content[0].type === "text" ? retry.content[0].text : "";
+      const retryCleaned = retryRaw.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+      try {
+        const retryParsed = JSON.parse(retryCleaned);
+        if (!retryParsed.outOfSyllabus) {
+          parsed = retryParsed;
+          if (parsed.long) parsed.long = sanitize(parsed.long);
+          if (parsed.short) parsed.short = sanitize(parsed.short);
+        }
+      } catch {
+        // fall through — keep original parsed
+      }
     }
 
     if (parsed.outOfSyllabus) {
