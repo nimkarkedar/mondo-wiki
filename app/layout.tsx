@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Literata } from "next/font/google";
+import { Lora } from "next/font/google";
 import "./globals.css";
 
-const literata = Literata({
-  variable: "--font-literata",
+const lora = Lora({
+  variable: "--font-lora",
   subsets: ["latin"],
   display: "swap",
 });
@@ -44,7 +44,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/asktgp-favicon.png" />
         <link rel="apple-touch-icon" href="/asktgp-favicon.png" />
       </head>
-      <body className={`${literata.variable} antialiased`}>{children}</body>
+      <body className={`${lora.variable} antialiased`}>{children}</body>
     </html>
   );
 }

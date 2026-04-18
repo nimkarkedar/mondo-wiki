@@ -8,13 +8,20 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "New York", var(--font-literata), Georgia, serif;
+  --font-sans: var(--font-lora), Georgia, serif;
+  --text-base: 18px;
+  --text-base--line-height: 1.55;
+}
+
+html {
+  font-size: 18px;
 }
 
 body {
   background: #f5f2ee;
   color: var(--foreground);
-  font-family: "New York", var(--font-literata), Georgia, serif;
+  font-family: var(--font-lora), Georgia, serif;
+  font-size: 18px;
 }
 
 /* ── Orange pane background animation ── */
