@@ -371,7 +371,7 @@ export default function Home() {
             )}
 
             {hasAnswer && (
-              <div key={answer.short} className="flex flex-col gap-6 max-w-xl">
+              <div key={answer.short} className="flex flex-col gap-6 max-w-xl md:mt-[70px]">
                 <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }}>
                   <p className="font-bold text-base text-white mb-2">Short answer:</p>
                   <p className="text-base font-normal text-white leading-snug">
