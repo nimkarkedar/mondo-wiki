@@ -335,19 +335,26 @@ export async function POST(req: NextRequest) {
       parsed.references = episodeTitles.map((title) => ({ name: title, profession: "" }));
     }
 
-    // Save to qa_history — skip if identical question saved in last 2 minutes
+    // Save to qa_history — skip only if an identical *answered* question exists
+    // in the last 2 minutes. Sentinel (out-of-syllabus) rows must NOT block a
+    // later real answer from being stored.
     let historyId: string | null = null;
     try {
       const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
-      const { data: dupe } = await supabase
+      const { data: dupeRows, error: dupeErr } = await supabase
         .from("qa_history")
-        .select("id")
+        .select("id, short_answer")
         .eq("question", question.trim())
+        .neq("short_answer", OUT_OF_SYLLABUS_MARKER)
         .gte("created_at", twoMinutesAgo)
-        .maybeSingle();
+        .limit(1);
+
+      if (dupeErr) console.error("qa_history dedupe check error:", dupeErr.message);
+
+      const dupe = dupeRows && dupeRows.length > 0 ? dupeRows[0] : null;
 
       if (!dupe) {
-        const { data: historyRow } = await supabase
+        const { data: historyRow, error: insertErr } = await supabase
           .from("qa_history")
           .insert({
             question: question.trim(),
@@ -356,12 +363,13 @@ export async function POST(req: NextRequest) {
           })
           .select("id")
           .single();
+        if (insertErr) console.error("qa_history insert error:", insertErr.message);
         historyId = historyRow?.id ?? null;
       } else {
         historyId = dupe.id;
       }
-    } catch {
-      // Ignore history save errors
+    } catch (err) {
+      console.error("qa_history save exception:", err);
     }
 
     // Log to Google Sheet (fire-and-forget)
