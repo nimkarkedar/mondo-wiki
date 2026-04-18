@@ -460,7 +460,7 @@ export default function Home() {
 
       </div>
 
-      <p className="absolute bottom-6 left-6 md:left-10 z-10 text-xs text-white pointer-events-none">© 2026 The Gyaan Project. All rights reserved.</p>
+      <p className="absolute bottom-6 left-0 right-0 px-6 text-center md:left-10 md:right-auto md:px-0 md:text-left z-10 text-xs text-white pointer-events-none">© 2026 The Gyaan Project. All rights reserved.</p>
 
       {toast && (
         <div className="fixed bottom-16 left-0 right-0 flex justify-center px-8 pointer-events-none z-50">
