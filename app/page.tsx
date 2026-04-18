@@ -332,18 +332,18 @@ export default function Home() {
           <div className="flex-1 flex flex-col px-6 md:px-10 pt-10 md:pt-[85px] pb-10 md:pb-14">
 
             {loading && (
-              <p className="text-white/60 text-base animate-pulse">Distilling wisdom…</p>
+              <p className="text-white/60 text-base animate-pulse md:mt-[85px]">Distilling wisdom…</p>
             )}
 
             {answer && !loading && answer.isError && (
-              <div key="error" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-3 max-w-xl">
+              <div key="error" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-3 max-w-xl md:mt-[85px]">
                 <p className="text-2xl">😕</p>
                 <p className="text-white/70 text-base leading-relaxed">{answer.long}</p>
               </div>
             )}
 
             {answer && !loading && answer.needsContext && (
-              <div key="needs-context" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-4 max-w-xl">
+              <div key="needs-context" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-4 max-w-xl md:mt-[85px]">
                 <p className="text-2xl">🤔</p>
                 <p className="text-white text-base font-bold leading-snug">Can you be more specific?</p>
                 <p className="text-white/70 text-base leading-relaxed">{answer.hint}</p>
@@ -351,7 +351,7 @@ export default function Home() {
             )}
 
             {answer && !loading && answer.outOfSyllabus && (
-              <div key="out-of-syllabus" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-5 max-w-xl">
+              <div key="out-of-syllabus" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-5 max-w-xl md:mt-[85px]">
                 <p className="text-4xl">🙃</p>
                 <p className="text-white text-base font-bold leading-snug">
                   This question is out of syllabus.
