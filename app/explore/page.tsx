@@ -126,7 +126,7 @@ export default function Explore() {
       <div className="flex-1 flex flex-col md:flex-row w-full">
 
         {/* Left panel — orange */}
-        <section className="w-full md:w-[40%] bg-[#ff6400] flex flex-col">
+        <section className="w-full md:w-[34%] bg-[#ff6400] flex flex-col">
           <header className="w-full flex items-stretch justify-between pl-0 pr-6 md:pr-10">
             <Link
               href="/"
@@ -157,7 +157,7 @@ export default function Explore() {
         </section>
 
         {/* Right panel — black */}
-        <section className="relative w-full flex-1 md:flex-none md:w-[60%] bg-[#111111] flex flex-col">
+        <section className="relative w-full flex-1 md:flex-none md:w-[66%] bg-[#111111] flex flex-col">
           <div className="px-6 md:px-10 pt-10 md:pt-[130px] pb-20 md:pb-24 max-w-[36ch] md:max-w-[60ch]">
 
             {!initialLoaded && loading && (
