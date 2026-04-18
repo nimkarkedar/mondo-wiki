@@ -433,7 +433,7 @@ export default function Home() {
                 </div>
 
                 <p className="text-sm text-white/60 pt-4">
-                  AI can make mistakes. Use your <span className="underline">viveka</span>.
+                  AI can make mistakes. Use your <a href="https://en.wikipedia.org/wiki/Viveka" target="_blank" rel="noopener noreferrer" className="underline">Vivek</a>.
                 </p>
               </div>
             )}
