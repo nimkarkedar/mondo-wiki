@@ -147,7 +147,7 @@ export default function Explore() {
           </header>
 
           <div className="px-6 md:px-10 pt-10 md:pt-[35px] pb-10 md:pb-14">
-            <h1 className="text-black text-5xl md:text-6xl font-bold leading-none" style={{ letterSpacing: "-2px" }}>
+            <h1 className="text-black text-5xl md:text-6xl font-bold leading-[1.05]" style={{ letterSpacing: "-2px" }}>
               What others are asking
             </h1>
             {items.length > 0 && (
