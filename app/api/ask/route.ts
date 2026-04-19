@@ -176,12 +176,17 @@ ${context ? `Here are the most relevant excerpts from The Gyaan Project transcri
 
 ${referencesInstruction}
 
-HARD LIMIT: The "long" answer must be 130 words or fewer. Count every word. Stop writing before you reach 130 words. Do not exceed this under any circumstances.
+HARD LIMITS:
+- The "long" answer must be between 120 and 150 words, drawn verbatim (or near-verbatim) from ONE single most-relevant episode. Never mash up multiple episodes.
+- The "endingQuestion" is a single short sentence — a James Clear 3-2-1 style closing prompt that opens contemplation. No preamble.
+- Never mention any guest, person, or interviewee name anywhere in short, long, or endingQuestion.
+- Never use hyphens or em-dashes anywhere. Use commas, periods, or restructure.
 
 Respond ONLY in this exact JSON format, with no text outside it:
 {
-  "short": "The koan here (2–5 words)",
-  "long": "The detailed answer here, using \\n\\n to separate paragraphs. Maximum 130 words.",
+  "short": "The koan here (2 to 5 words)",
+  "long": "The detailed answer here (120 to 150 words), using \\n\\n to separate paragraphs.",
+  "endingQuestion": "A single powerful closing question.",
   "references": [
     { "name": "Guest Name", "profession": "Profession" }
   ]
@@ -262,13 +267,13 @@ export async function POST(req: NextRequest) {
 
     if (parsed.long) parsed.long = sanitize(parsed.long);
     if (parsed.short) parsed.short = sanitize(parsed.short);
+    if (parsed.endingQuestion) parsed.endingQuestion = sanitize(parsed.endingQuestion);
 
-    // Hard enforce 130-word limit on long answer
+    // Soft cap: allow up to 150 words. Only truncate if model overshoots.
     if (parsed.long) {
       const words = parsed.long.split(/\s+/);
-      if (words.length > 130) {
-        const truncated = words.slice(0, 130).join(" ");
-        // Try to end at a sentence boundary
+      if (words.length > 150) {
+        const truncated = words.slice(0, 150).join(" ");
         const lastSentence = Math.max(
           truncated.lastIndexOf(". "),
           truncated.lastIndexOf("! "),

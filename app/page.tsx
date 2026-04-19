@@ -26,6 +26,7 @@ type Answer = {
   id?: string;
   short: string;
   long: string;
+  endingQuestion?: string;
   references: { name: string; profession: string }[];
   outOfSyllabus?: boolean;
   funUrl?: string;
@@ -165,7 +166,8 @@ export default function Home() {
 
   function getAnswerText() {
     if (!answer) return "";
-    return `Q: ${question}\n\nShort answer: ${answer.short}\n\nLong answer: ${answer.long}`;
+    const tail = answer.endingQuestion ? `\n\n${answer.endingQuestion}` : "";
+    return `Q: ${question}\n\nShort answer: ${answer.short}\n\nLong answer: ${answer.long}${tail}`;
   }
 
   function showToast(msg: string) {
@@ -387,6 +389,14 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
+
+                {answer.endingQuestion && (
+                  <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 240ms forwards" }} className="pt-2 border-t border-white/15">
+                    <p className="text-white text-base italic leading-relaxed pt-4">
+                      {answer.endingQuestion}
+                    </p>
+                  </div>
+                )}
 
 <div style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 300ms forwards" }} className="flex items-center gap-2 pt-2">
                   {feedback ? (
