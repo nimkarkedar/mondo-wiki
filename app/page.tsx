@@ -385,7 +385,14 @@ export default function Home() {
 
             {answer && !loading && answer.outOfSyllabus && (
               <div key="out-of-syllabus" style={{ opacity: 0, animation: "answerReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards" }} className="flex flex-col gap-5 max-w-xl md:mt-[85px]">
-                <p className="text-4xl">🙃</p>
+                {answer.funUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={answer.funUrl}
+                    alt="A random reaction"
+                    className="rounded-2xl max-w-sm w-full h-auto border border-white/10"
+                  />
+                )}
                 <p className="text-white text-base font-bold leading-snug">
                   This question is out of syllabus.
                 </p>
@@ -413,14 +420,6 @@ export default function Home() {
                   </a>
                   .
                 </p>
-                {answer.funUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={answer.funUrl}
-                    alt="A random reaction"
-                    className="rounded-2xl max-w-sm w-full h-auto border border-white/10"
-                  />
-                )}
               </div>
             )}
 
