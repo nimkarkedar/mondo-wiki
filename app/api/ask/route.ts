@@ -47,63 +47,200 @@ async function embedQuestion(question: string): Promise<number[]> {
   return data.data[0].embedding;
 }
 
-// Extract a proper person name from the question (e.g. "Rupali Gupte")
-function extractPersonName(question: string): string | null {
-  // Words that start a sentence but are not part of a person's name
-  const skipWords = new Set([
-    "Summarise", "Summarize", "Tell", "What", "Who", "How", "Why",
-    "Where", "When", "Describe", "Explain", "Show", "Give", "Can",
-    "Does", "Did", "Is", "Are", "Was", "The", "This", "These",
-  ]);
+// ── Guest index ──────────────────────────────────────────────────────────────
+// Cache the list of episode titles in memory and refresh every 5 minutes.
+// We match question tokens against title tokens so ANY phrasing that contains
+// a guest name (single, bigram, or typo) finds the right episode.
 
-  // First: try multi-word name (e.g. "Sunit Singh")
-  const matches = question.match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+\b/g);
-  if (matches) {
-    for (const match of matches) {
-      const words = match.split(" ");
-      let start = 0;
-      while (start < words.length && skipWords.has(words[start])) start++;
-      const name = words.slice(start).join(" ");
-      if (name.includes(" ")) return name;
+type TitleEntry = { title: string; tokens: string[] };
+let titleCache: { entries: TitleEntry[]; expiresAt: number } | null = null;
+
+// Tokens that appear in questions or titles but should never be treated as
+// names. Stripped from both sides of the match so they can't cause false hits.
+const NON_NAME_TOKENS = new Set([
+  // Archive metadata
+  "ep", "episode", "transcript", "part", "vol", "volume", "interview",
+  // Articles / prepositions / conjunctions
+  "the", "a", "an", "and", "or", "of", "on", "in", "at", "to", "for",
+  "with", "by", "from", "about", "is", "are", "was", "were", "be", "been",
+  "between", "into", "onto", "over", "under", "through",
+  // Question / instruction words
+  "what", "who", "how", "why", "when", "where", "which", "tell", "say",
+  "said", "think", "thinks", "thought", "know", "knows", "did", "does",
+  "do", "can", "could", "would", "should", "will", "shall", "may", "might",
+  "please", "give", "show", "describe", "explain", "summarise", "summarize",
+  "summary", "overview", "advice", "thoughts", "view", "views", "opinion",
+  "perspective", "according", "example", "examples", "like", "love", "hate",
+  "mean", "means", "meaning", "talk", "talks", "talked", "talking",
+  // Generic verbs that show up in titles
+  "designing", "making", "writing", "drawing", "painting", "building",
+  "discussing", "creating", "learning", "teaching", "reading", "knowing",
+  "understanding", "hiring", "leading", "working", "studying",
+  // Common topic nouns (added to avoid matching question topic → unrelated title)
+  "type", "typography", "book", "books", "space", "spaces", "leadership",
+  "leader", "leaders", "illustration", "illustrator", "music", "film",
+  "films", "cinema", "poetry", "writer", "photographer", "photography",
+  "painter", "cover", "covers", "brand", "branding", "logo", "logos",
+  "identity", "product", "craft", "culture", "taste", "voice", "vision",
+  "critique", "feedback", "client", "brief", "career", "portfolio",
+  "process", "practice", "inspiration", "muse", "research", "synthesis",
+  "education", "history", "philosophy", "aesthetic", "material", "method",
+  "methods", "approach", "story", "stories", "narrative", "path", "work",
+  "works", "project", "projects", "piece", "pieces", "series", "collection",
+  "show", "exhibition", "museum", "gallery", "studio", "agency", "company",
+  "startup", "student", "students", "teacher", "mentor", "lesson", "lessons",
+  "context", "style", "styles", "movement", "concept", "concepts",
+  "principle", "principles", "rule", "rules", "color", "colour", "form",
+  "line", "print", "digital", "web", "app", "mobile", "tool", "tools",
+  // Generic topic words that dominate many titles
+  "design", "art", "artist", "designer", "creative", "creativity", "idea",
+  "ideas", "podcast", "conversation", "feat", "ft", "india", "indian",
+  // Generic episode title words from this archive
+  "architecture", "films", "thinking", "generalists", "specialists",
+  // Month names / dates
+  "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct",
+  "nov", "dec", "january", "february", "march", "april", "june", "july",
+  "august", "september", "october", "november", "december",
+]);
+
+function tokenizeTitle(title: string): string[] {
+  return title
+    .split(/[\s._\-]+/)
+    .map((t) => t.toLowerCase().replace(/[^a-z]/g, ""))
+    .filter((t) => t.length >= 3 && !/^\d+$/.test(t) && !NON_NAME_TOKENS.has(t));
+}
+
+async function getTitleIndex(): Promise<TitleEntry[]> {
+  const now = Date.now();
+  if (titleCache && titleCache.expiresAt > now) return titleCache.entries;
+
+  // Supabase caps each request at 1000 rows. Paginate through all chunks
+  // (the archive has ~5000 rows across 160+ episodes).
+  const seen = new Set<string>();
+  const PAGE = 1000;
+  for (let offset = 0; offset < 20000; offset += PAGE) {
+    const { data, error } = await supabase
+      .from("transcript_chunks")
+      .select("episode_title")
+      .range(offset, offset + PAGE - 1);
+    if (error || !data || data.length === 0) break;
+    for (const row of data) seen.add(row.episode_title as string);
+    if (data.length < PAGE) break;
+  }
+
+  const entries = Array.from(seen).map((title) => ({ title, tokens: tokenizeTitle(title) }));
+  titleCache = { entries, expiresAt: now + 5 * 60 * 1000 };
+  return entries;
+}
+
+function levenshtein(a: string, b: string): number {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const prev = new Array(b.length + 1).fill(0).map((_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let cur = [i, ...new Array(b.length).fill(0)];
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = a[i - 1] === b[j - 1]
+        ? prev[j - 1]
+        : 1 + Math.min(prev[j - 1], prev[j], cur[j - 1]);
+    }
+    for (let k = 0; k <= b.length; k++) prev[k] = cur[k];
+  }
+  return prev[b.length];
+}
+
+// Fuzzy match: true if question token matches title token within typo tolerance.
+// Match strength: 0 = no match, 2 = fuzzy (typo), 3 = exact or prefix.
+// Fuzzy is intentionally tight (Lev ≤ 1) to avoid nonsense like random→Randy.
+function matchStrength(qTok: string, tTok: string): number {
+  if (qTok === tTok) return 3;
+  if (qTok.length >= 5 && tTok.length >= 5) {
+    if (tTok.startsWith(qTok) || qTok.startsWith(tTok)) return 3;
+  }
+  if (qTok.length >= 5 && tTok.length >= 5 &&
+      Math.abs(qTok.length - tTok.length) <= 1 &&
+      levenshtein(qTok, tTok) <= 1) {
+    return 2;
+  }
+  return 0;
+}
+
+// Score a title against question tokens. Exact matches beat fuzzy in ties.
+// Consecutive bigram hit (full name, e.g. "Susmita Mohanty") is strongest.
+function scoreTitle(qTokens: string[], entry: TitleEntry): number {
+  let score = 0;
+  for (const qTok of qTokens) {
+    let best = 0;
+    for (const tTok of entry.tokens) {
+      best = Math.max(best, matchStrength(qTok, tTok));
+      if (best === 3) break;
+    }
+    score += best;
+  }
+  for (let i = 0; i < qTokens.length - 1; i++) {
+    for (let j = 0; j < entry.tokens.length - 1; j++) {
+      if (matchStrength(qTokens[i], entry.tokens[j]) > 0 &&
+          matchStrength(qTokens[i + 1], entry.tokens[j + 1]) > 0) {
+        score += 5;
+      }
+    }
+  }
+  return score;
+}
+
+async function findEpisodeByName(question: string): Promise<string | null> {
+  // Pull every word that looks like it could be a name: 3+ letters, not a stopword.
+  const qTokens = question
+    .split(/[\s,.?!]+/)
+    .map((w) => w.toLowerCase().replace(/[^a-z']/g, "").replace(/'s$/, ""))
+    .filter((w) => w.length >= 3 && !NON_NAME_TOKENS.has(w));
+
+  if (qTokens.length === 0) return null;
+
+  const entries = await getTitleIndex();
+  let best: { title: string; score: number } | null = null;
+  for (const entry of entries) {
+    const score = scoreTitle(qTokens, entry);
+    if (score > 0 && (!best || score > best.score)) {
+      best = { title: entry.title, score };
     }
   }
 
-  // Fallback: single first name with possessive in summary context
-  // e.g. "Summarise Sunit's episode" → "Sunit"
-  const possessive = question.match(
-    /(?:summarise|summarize|tell me about|describe|about)\s+([A-Z][a-zA-Z]+)'s/i
-  );
-  if (possessive) return possessive[1];
-
-  // Fallback: single first name after "by/from/about/of" preposition
-  // e.g. "What is Design by Susmita" → "Susmita"
-  // e.g. "Thoughts from Anuj on type" → "Anuj"
-  const prepositional = question.match(
-    /\b(?:by|from|about|of)\s+([A-Z][a-zA-Z]{2,})\b/
-  );
-  if (prepositional && !skipWords.has(prepositional[1])) return prepositional[1];
-
+  // Score 3+ means at least one exact name-token match, or a fuzzy match on
+  // a distinctive name plus another signal. Pure single-fuzzy (score 2) still
+  // passes because typos like Sushmita→Susmita and Pinki→Pinaki are common,
+  // but we only allow it when the title has ≤ 2 name tokens total (so the
+  // matched token is clearly the guest's name, not a stray word).
+  if (!best) return null;
+  const matched: { title: string; score: number } = best;
+  if (matched.score >= 3) return matched.title;
+  if (matched.score === 2) {
+    const entry = entries.find((e) => e.title === matched.title);
+    if (entry && entry.tokens.length <= 2) return matched.title;
+  }
   return null;
 }
 
 async function getRelevantChunks(question: string) {
-  const embedding = await embedQuestion(question);
-
-  // Check if question names a specific person — if so, pull their chunks directly
-  const personName = extractPersonName(question);
-  if (personName) {
+  // 1. Name-aware retrieval: match question tokens against the real title index.
+  const matchedTitle = await findEpisodeByName(question);
+  if (matchedTitle) {
     const { data: personChunks } = await supabase
       .from("transcript_chunks")
       .select("episode_title, content")
-      .ilike("episode_title", `%${personName}%`)
+      .eq("episode_title", matchedTitle)
       .order("chunk_index")
-      .limit(6);
+      .limit(8);
 
     if (personChunks && personChunks.length > 0) {
+      console.log(`🎯 Name match → ${matchedTitle} (${personChunks.length} chunks)`);
       return personChunks;
     }
   }
 
+  // 2. Topic query: semantic vector search.
+  const embedding = await embedQuestion(question);
   const { data, error } = await supabase.rpc("match_chunks", {
     query_embedding: embedding,
     match_count: 10,

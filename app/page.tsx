@@ -359,7 +359,7 @@ export default function Home() {
                   This question is out of syllabus.
                 </p>
                 <p className="text-white/70 text-base leading-relaxed">
-                  Our oracle only speaks design and art. Your question has wandered somewhere the archive has never been.
+                  The Gyaan Project only speaks on design and art. Yes, I get it, everything is design, but seems like askTGP oracle was not able to find what you are looking for. Sorry. Either something is messed up or the repository needs to be richer.
                 </p>
                 {answer.funUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
