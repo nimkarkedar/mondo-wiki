@@ -75,6 +75,14 @@ function extractPersonName(question: string): string | null {
   );
   if (possessive) return possessive[1];
 
+  // Fallback: single first name after "by/from/about/of" preposition
+  // e.g. "What is Design by Susmita" → "Susmita"
+  // e.g. "Thoughts from Anuj on type" → "Anuj"
+  const prepositional = question.match(
+    /\b(?:by|from|about|of)\s+([A-Z][a-zA-Z]{2,})\b/
+  );
+  if (prepositional && !skipWords.has(prepositional[1])) return prepositional[1];
+
   return null;
 }
 
