@@ -222,36 +222,173 @@ async function findEpisodeByName(question: string): Promise<string | null> {
   return null;
 }
 
-async function getRelevantChunks(question: string) {
-  // 1. Name-aware retrieval: match question tokens against the real title index.
+// ── Keyword extraction for hybrid search ─────────────────────────────────────
+// Vector search alone often misses topical matches because the guest uses
+// different vocabulary than the question. Hybrid = vector + keyword, merged.
+
+const STOPWORDS_FOR_KEYWORDS = new Set([
+  ...NON_NAME_TOKENS,
+  "think", "know", "find", "want", "need", "feel", "look", "make", "made",
+  "take", "took", "come", "came", "went", "said", "says", "ask", "asked",
+  "use", "used", "good", "bad", "best", "better", "worse", "more", "less",
+  "most", "least", "many", "much", "some", "any", "all", "none", "every",
+  "thing", "things", "stuff", "really", "very", "just", "quite", "also",
+  "only", "even", "still", "yet", "then", "than", "too", "here", "there",
+]);
+
+// Normalize a word to a searchable stem-like prefix that substring-matches
+// both singular and plural forms in the archive.
+//   "communities" → "communit"  (matches community, communities, communal)
+//   "colors" → "color"
+//   "forming" → "form"
+//   "designed" → "design"
+function stemLite(w: string): string {
+  const x = w.toLowerCase();
+  if (x.length <= 4) return x;
+  if (x.endsWith("ies")) return x.slice(0, -3);
+  if (x.endsWith("ing") && x.length > 5) return x.slice(0, -3);
+  if (x.endsWith("ed") && x.length > 4) return x.slice(0, -2);
+  if (x.endsWith("s") && !x.endsWith("ss")) return x.slice(0, -1);
+  return x;
+}
+
+function extractKeywords(question: string): string[] {
+  const raw = question
+    .toLowerCase()
+    .split(/[^a-z]+/)
+    .filter((w) => w.length >= 4 && !STOPWORDS_FOR_KEYWORDS.has(w));
+  // Dedupe by stem
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const w of raw) {
+    const s = stemLite(w);
+    if (!seen.has(s)) {
+      seen.add(s);
+      out.push(s);
+    }
+  }
+  return out;
+}
+
+type Chunk = { episode_title: string; content: string; chunk_index?: number };
+
+// Keyword search strategy:
+//   - If 2+ keywords: require ALL to appear in chunk (AND). Highly selective,
+//     catches topical matches vector search misses (e.g. Sarover Zaidi for
+//     "communities" + "color" when her chunks discuss both explicitly).
+//   - If AND returns nothing: fall back to OR, keep chunks with most hits.
+//   - If only 1 keyword: require just that one.
+async function keywordSearch(keywords: string[], limit = 12): Promise<Chunk[]> {
+  if (keywords.length === 0) return [];
+
+  // AND: chain .ilike() calls, each narrows the set further.
+  if (keywords.length >= 2) {
+    let q = supabase
+      .from("transcript_chunks")
+      .select("episode_title, content, chunk_index");
+    for (const k of keywords) q = q.ilike("content", `%${k}%`);
+    const { data } = await q.limit(limit * 3);
+    if (data && data.length > 0) {
+      // Score by total keyword occurrences (density) — more hits per chunk ranks higher
+      const scored = data.map((r) => {
+        const low = (r.content as string).toLowerCase();
+        let density = 0;
+        for (const k of keywords) {
+          const matches = low.match(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"));
+          density += matches ? matches.length : 0;
+        }
+        return { ...r, score: density } as Chunk & { score: number };
+      });
+      scored.sort((a, b) => b.score - a.score);
+      return scored.slice(0, limit);
+    }
+  }
+
+  // Fallback (or single-keyword case): OR search, rank by hit count.
+  const orFilter = keywords.map((k) => `content.ilike.%${k}%`).join(",");
+  const { data, error } = await supabase
+    .from("transcript_chunks")
+    .select("episode_title, content, chunk_index")
+    .or(orFilter)
+    .limit(500);
+
+  if (error || !data) return [];
+
+  const scored = data.map((r) => {
+    const low = (r.content as string).toLowerCase();
+    const hits = keywords.filter((k) => low.includes(k)).length;
+    return { ...r, score: hits } as Chunk & { score: number };
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored.filter((r) => r.score >= 1).slice(0, limit);
+}
+
+async function vectorSearch(question: string, matchCount = 10): Promise<Chunk[]> {
+  const embedding = await embedQuestion(question);
+  const { data, error } = await supabase.rpc("match_chunks", {
+    query_embedding: embedding,
+    match_count: matchCount,
+  });
+  if (error) {
+    console.error("vectorSearch error:", JSON.stringify(error));
+    return [];
+  }
+  return (data ?? []) as Chunk[];
+}
+
+// Merge keyword + vector results, dedupe by (episode_title, chunk_index or
+// content prefix). Interleave so both signals get representation near the top.
+function mergeHybrid(kw: Chunk[], vec: Chunk[], maxTotal = 14): Chunk[] {
+  const seen = new Set<string>();
+  const out: Chunk[] = [];
+  const key = (c: Chunk) =>
+    `${c.episode_title}::${c.chunk_index ?? c.content.slice(0, 60)}`;
+  const max = Math.max(kw.length, vec.length);
+  for (let i = 0; i < max && out.length < maxTotal; i++) {
+    for (const src of [kw, vec]) {
+      if (i < src.length) {
+        const c = src[i];
+        const k = key(c);
+        if (!seen.has(k)) {
+          seen.add(k);
+          out.push(c);
+          if (out.length >= maxTotal) break;
+        }
+      }
+    }
+  }
+  return out;
+}
+
+async function getRelevantChunks(question: string): Promise<Chunk[]> {
+  // 1. Name-aware retrieval — direct title match.
   const matchedTitle = await findEpisodeByName(question);
   if (matchedTitle) {
     const { data: personChunks } = await supabase
       .from("transcript_chunks")
-      .select("episode_title, content")
+      .select("episode_title, content, chunk_index")
       .eq("episode_title", matchedTitle)
       .order("chunk_index")
       .limit(8);
 
     if (personChunks && personChunks.length > 0) {
       console.log(`🎯 Name match → ${matchedTitle} (${personChunks.length} chunks)`);
-      return personChunks;
+      return personChunks as Chunk[];
     }
   }
 
-  // 2. Topic query: semantic vector search.
-  const embedding = await embedQuestion(question);
-  const { data, error } = await supabase.rpc("match_chunks", {
-    query_embedding: embedding,
-    match_count: 10,
-  });
+  // 2. Topic query: hybrid search (keyword + vector).
+  const keywords = extractKeywords(question);
+  const [kw, vec] = await Promise.all([
+    keywordSearch(keywords),
+    vectorSearch(question, 10),
+  ]);
 
-  if (error) {
-    console.error("❌ Supabase match_chunks error:", JSON.stringify(error));
-    return [];
-  }
-
-  return data ?? [];
+  console.log(
+    `🔍 Hybrid: keywords=[${keywords.join(", ")}] → kw:${kw.length} vec:${vec.length}`
+  );
+  const merged = mergeHybrid(kw, vec, 14);
+  return merged;
 }
 
 // Random meme / reaction GIFs shown when a question is out of syllabus.
