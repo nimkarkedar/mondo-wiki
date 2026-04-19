@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Footer from "../components/Footer";
 
 type HistoryItem = {
   id: string;
@@ -138,8 +139,14 @@ export default function Explore() {
             </nav>
           </header>
 
-          <div className="px-6 md:px-10 pt-10 md:pt-[35px] pb-10 md:pb-14">
-            <h1 className="text-black text-5xl md:text-6xl font-bold leading-[1.05]" style={{ letterSpacing: "-2px" }}>
+          <div className="px-6 md:px-10 pt-6 md:pt-6 pb-10 md:pb-14">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-black text-base hover:opacity-70 transition-opacity py-2 -ml-2 px-2 rounded"
+            >
+              <span aria-hidden="true">←</span> Back
+            </Link>
+            <h1 className="text-black text-5xl md:text-6xl font-bold leading-[1.05] mt-6" style={{ letterSpacing: "-2px" }}>
               What others are asking
             </h1>
             {items.length > 0 && (
@@ -239,7 +246,7 @@ export default function Explore() {
 
       </div>
 
-      <p className="absolute bottom-6 left-0 right-0 px-6 text-center md:left-10 md:right-auto md:px-0 md:text-left z-10 text-xs text-white pointer-events-none">© 2026 The Gyaan Project. All rights reserved.</p>
+      <Footer />
 
       {toast && (
         <div className="fixed bottom-16 left-0 right-0 flex justify-center px-8 pointer-events-none z-50">
