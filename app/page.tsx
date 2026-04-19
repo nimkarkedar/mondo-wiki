@@ -389,7 +389,28 @@ export default function Home() {
                   This question is out of syllabus.
                 </p>
                 <p className="text-white/70 text-base leading-relaxed">
-                  The Gyaan Project only speaks on design and art. Yes, I get it, everything is design, but seems like askTGP oracle was not able to find what you are looking for. Sorry. Either something is messed up or the repository needs to be richer.
+                  The Gyaan Project only speaks on design and art. I get it, everything is design, but seems like askTGP oracle was not able to find what you are looking for. Sorry.
+                </p>
+                <p className="text-white/70 text-base leading-relaxed">
+                  Subscribe to{" "}
+                  <a
+                    href="https://thegyaanproject.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white underline hover:opacity-70 transition-opacity"
+                  >
+                    The Gyaan Project Podcast
+                  </a>{" "}
+                  or{" "}
+                  <a
+                    href="https://www.youtube.com/channel/UCeZKC5zFI0WSPpHsif4eIlw/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white underline hover:opacity-70 transition-opacity"
+                  >
+                    Youtube Channel
+                  </a>
+                  .
                 </p>
                 {answer.funUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
