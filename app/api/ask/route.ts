@@ -401,6 +401,7 @@ const FUN_GIFS = [
   "Congress Modi GIF.gif",
   "Exam Study Time GIF by Digital Pratik.gif",
   "GIF from Giphy.gif",
+  "GIF from Giphy copy.gif",
   "Indian Cinema No GIF by Bombay Softwares.gif",
   "Irrfan Khan GIF.gif",
   "Losing It Epic Fail GIF Magic Radio.gif",
