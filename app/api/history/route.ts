@@ -6,29 +6,23 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const offset = parseInt(searchParams.get("offset") ?? "0");
-  const limit = 5;
+export async function GET(_req: NextRequest) {
+  // Fetch a small buffer so dedupe by question still leaves ~10 unique items.
+  const fetchLimit = 25;
+  const displayLimit = 10;
 
-  const since = new Date();
-  since.setDate(since.getDate() - 10);
-
-  // Fetch one extra to know if more pages exist
   const { data: raw, error } = await supabase
     .from("qa_history")
     .select("id, question, short_answer, long_answer, created_at")
-    .gte("created_at", since.toISOString())
     .neq("short_answer", "__OUT_OF_SYLLABUS__")
     .order("created_at", { ascending: false })
-    .range(offset, offset + limit);
+    .limit(fetchLimit);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const hasMore = (raw?.length ?? 0) > limit;
-  const items = (raw ?? []).slice(0, limit);
+  const items = (raw ?? []).slice(0, displayLimit);
 
   const enriched = await Promise.all(
     items.map(async (item) => {
@@ -44,5 +38,5 @@ export async function GET(req: NextRequest) {
     })
   );
 
-  return NextResponse.json({ items: enriched, hasMore });
+  return NextResponse.json({ items: enriched });
 }

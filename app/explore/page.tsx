@@ -25,8 +25,6 @@ function formatDate(iso: string) {
 
 export default function Explore() {
   const [items, setItems] = useState<HistoryItem[]>([]);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -34,25 +32,19 @@ export default function Explore() {
   const [votes, setVotes] = useState<Record<string, "up" | "down">>({});
   const initialized = useRef(false);
 
-  async function loadItems(currentOffset: number) {
+  async function loadItems() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/history?offset=${currentOffset}`);
+      const res = await fetch(`/api/history`);
       const data = await res.json();
-      setItems((prev) => {
-        const merged = currentOffset === 0
-          ? (data.items ?? [])
-          : [...prev, ...(data.items ?? [])];
-        const seen = new Set<string>();
-        return merged.filter((item: HistoryItem) => {
-          const key = item.question.trim().toLowerCase();
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        });
+      const seen = new Set<string>();
+      const deduped = (data.items ?? []).filter((item: HistoryItem) => {
+        const key = item.question.trim().toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
       });
-      setOffset(currentOffset + (data.items?.length ?? 0));
-      setHasMore(data.hasMore);
+      setItems(deduped);
     } catch {
       // ignore
     } finally {
@@ -64,7 +56,7 @@ export default function Explore() {
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
-    loadItems(0);
+    loadItems();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function showToast(msg: string) {
@@ -242,21 +234,6 @@ export default function Explore() {
               ))}
             </div>
 
-            {initialLoaded && hasMore && (
-              <button
-                onClick={() => loadItems(offset)}
-                disabled={loading}
-                className="mt-8 w-full py-3.5 rounded-xl border border-white/20 text-sm font-semibold text-white/70 hover:border-white/60 hover:text-white transition-colors disabled:opacity-40"
-              >
-                {loading ? "Loading…" : "Load more"}
-              </button>
-            )}
-
-            {initialLoaded && !hasMore && items.length > 0 && (
-              <p className="mt-6 text-sm text-white/60">
-                You&apos;ve seen all questions from the last 10 days.
-              </p>
-            )}
           </div>
         </section>
 

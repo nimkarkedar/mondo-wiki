@@ -335,7 +335,7 @@ export default function Home() {
                 <div className="text-black text-center md:text-left">
                   <p className="font-bold text-base">Expect a philosophical answer.</p>
                   <Link href="/explore" className="text-black text-base underline hover:opacity-70 transition-opacity">
-                    See examples
+                    See what others are asking
                   </Link>
                 </div>
               </div>
