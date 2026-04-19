@@ -167,7 +167,25 @@ export default function Home() {
   function getAnswerText() {
     if (!answer) return "";
     const tail = answer.endingQuestion ? `\n\n${answer.endingQuestion}` : "";
-    return `Q: ${question}\n\nShort answer: ${answer.short}\n\nLong answer: ${answer.long}${tail}`;
+    const footer = `\n\nQ&A from asktgp.com (Powered by The Gyaan Project)`;
+    return `Q: ${question}\n\nShort answer: ${answer.short}\n\nLong answer: ${answer.long}${tail}${footer}`;
+  }
+
+  function getAnswerHtml() {
+    if (!answer) return "";
+    const esc = (s: string) =>
+      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const longHtml = esc(answer.long).replace(/\n\n/g, "<br><br>");
+    const ending = answer.endingQuestion
+      ? `<p><em>${esc(answer.endingQuestion)}</em></p>`
+      : "";
+    return `<div>
+      <p><strong>Q:</strong> ${esc(question)}</p>
+      <p><strong>Short answer:</strong> ${esc(answer.short)}</p>
+      <p><strong>Long answer:</strong> ${longHtml}</p>
+      ${ending}
+      <p>Q&amp;A from <a href="https://asktgp.com">asktgp.com</a> (Powered by The Gyaan Project)</p>
+    </div>`;
   }
 
   function showToast(msg: string) {
@@ -180,8 +198,20 @@ export default function Home() {
     });
   }
 
-  async function writeToClipboard(text: string) {
+  async function writeToClipboard(text: string, html?: string) {
+    // Rich copy: write both HTML (for rich-text apps like email, Notion, Docs)
+    // and plain text (for terminals, code editors) so the asktgp.com link
+    // appears as a clickable hyperlink when pasted into rich apps.
     try {
+      if (html && typeof ClipboardItem !== "undefined") {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "text/html": new Blob([html], { type: "text/html" }),
+            "text/plain": new Blob([text], { type: "text/plain" }),
+          }),
+        ]);
+        return;
+      }
       await navigator.clipboard.writeText(text);
     } catch {
       const el = document.createElement("textarea");
@@ -196,7 +226,7 @@ export default function Home() {
   }
 
   async function handleCopy() {
-    await writeToClipboard(getAnswerText());
+    await writeToClipboard(getAnswerText(), getAnswerHtml());
     showToast("Copied to clipboard");
   }
 
