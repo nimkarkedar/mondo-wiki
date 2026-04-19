@@ -392,19 +392,27 @@ async function getRelevantChunks(question: string): Promise<Chunk[]> {
 }
 
 // Random meme / reaction GIFs shown when a question is out of syllabus.
-// Direct Giphy media URLs — served as <img> on the client.
+// Files live in /public/oos/. URL-encoded so spaces in filenames work.
 const FUN_GIFS = [
-  "https://media.giphy.com/media/3o7TKsQ8gb44YHKMuY/giphy.gif",
-  "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
-  "https://media.giphy.com/media/26BRrSvJUa0crqw4E/giphy.gif",
-  "https://media.giphy.com/media/xUPGcl3ijl0vAEyIRi/giphy.gif",
-  "https://media.giphy.com/media/l0HlSNOxJB956qwfK/giphy.gif",
-  "https://media.giphy.com/media/l1J9sBOj2EqwFIbvG/giphy.gif",
-  "https://media.giphy.com/media/3oz8xAFtqoOUUrsh7W/giphy.gif",
-  "https://media.giphy.com/media/5xtDarEbYqD1pVxVZio/giphy.gif",
-  "https://media.giphy.com/media/l2Je66zG6mAAZxgqI/giphy.gif",
-  "https://media.giphy.com/media/3o6Zt90lm0dkRB4ZAQ/giphy.gif",
-];
+  "Angry Schitts Creek GIF by CBC.gif",
+  "Confused 3 Idiots GIF.gif",
+  "Confused Dogs by MOODMAN.gif",
+  "Confused Schitts Creek GIF by CBC.gif",
+  "Congress Modi GIF.gif",
+  "Exam Study Time GIF by Digital Pratik.gif",
+  "GIF from Giphy.gif",
+  "Indian Cinema No GIF by Bombay Softwares.gif",
+  "Irrfan Khan GIF.gif",
+  "Losing It Epic Fail GIF Magic Radio.gif",
+  "Michael Cohen GIF (1).gif",
+  "Richard Rankin Fml GIF.gif",
+  "Sad Bigg Boss GIF.gif",
+  "Sorry Barack Obama GIF.gif",
+  "Sorry Please Forgive Me GIF by Tata Play.gif",
+  "Sorry The Hangover GIF.gif",
+  "Test Teacher GIF by BuzzFeed.gif",
+  "You Can't Indian Cinema GIF by Bombay Softwares.gif",
+].map((name) => `/oos/${encodeURIComponent(name)}`);
 
 // Sentinel stored in qa_history.short_answer to flag out-of-syllabus rows.
 // These rows record question + timestamp + location for analytics but are
