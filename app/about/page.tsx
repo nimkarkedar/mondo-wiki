@@ -57,7 +57,11 @@ export default function About() {
               </p>
 
               <p>
-                The Gyaan Project is a podcast and YouTube channel dedicated to exploring creative wisdom. Since 2016, it has been chronicling the ideas, philosophies, and stories of Indian luminaries: designers, artists, musicians, writers, and thinkers. It functions as a contemporary creative archive, bridging the past with the present to inspire the future.
+                The Gyaan Project is a podcast and{" "}
+                <a href="https://www.youtube.com/channel/UCeZKC5zFI0WSPpHsif4eIlw/" target="_blank" rel="noopener noreferrer" className="underline">
+                  YouTube channel
+                </a>{" "}
+                dedicated to exploring creative wisdom. Since 2016, it has been chronicling the ideas, philosophies, and stories of Indian luminaries: designers, artists, musicians, writers, and thinkers. It functions as a contemporary creative archive, bridging the past with the present to inspire the future.
               </p>
 
               <p>
