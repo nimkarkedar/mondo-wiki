@@ -428,18 +428,6 @@ export default function Home() {
                       <path d="M10 8h9a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H10a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
                     </svg>
                   </button>
-                  <button
-                    onClick={handleCopy}
-                    title="Share"
-                    className="p-2 rounded-full border border-white/30 text-white/70 hover:border-white hover:text-white transition-colors"
-                    aria-label="Share"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 3v12" />
-                      <path d="m8 7 4-4 4 4" />
-                      <path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" />
-                    </svg>
-                  </button>
                 </div>
 
                 <p className="text-sm text-white/60 pt-4">
