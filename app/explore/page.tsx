@@ -205,7 +205,7 @@ export default function Explore() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 pt-1">
+                      <div className="flex items-center gap-3 pt-1 flex-wrap">
                         {votes[item.id] ? (
                           <p className="text-sm text-white/60">Thanks for the feedback.</p>
                         ) : (
@@ -214,13 +214,13 @@ export default function Explore() {
                               onClick={() => handleVote(item, "up")}
                               className="text-sm px-4 py-2 rounded-full border border-white/30 text-white hover:border-white transition-colors whitespace-nowrap"
                             >
-                              👍 Agree
+                              👍 Agree{item.thumbsUp > 0 ? ` · ${item.thumbsUp}` : ""}
                             </button>
                             <button
                               onClick={() => handleVote(item, "down")}
                               className="text-sm px-4 py-2 rounded-full border border-white/30 text-white hover:border-white transition-colors whitespace-nowrap"
                             >
-                              👎 Disagree
+                              👎 Disagree{item.thumbsDown > 0 ? ` · ${item.thumbsDown}` : ""}
                             </button>
                           </>
                         )}
