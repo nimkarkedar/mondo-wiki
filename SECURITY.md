@@ -45,6 +45,10 @@ Don't dismiss it. Walk through:
 ## Applied migrations
 
 - [`supabase/001_enable_rls.sql`](supabase/001_enable_rls.sql) — RLS on
-  `transcript_chunks`, `qa_history`, `feedback`; revoked anon/authenticated
+  `transcript_chunks` and `qa_history`; revoked anon/authenticated
   privileges. Applied: **2026-04-22** (fixing Supabase Security Advisor
   "RLS Disabled in Public" on `public.transcript_chunks`).
+- [`supabase/002_create_feedback.sql`](supabase/002_create_feedback.sql) —
+  created the missing `feedback` table that `/api/feedback` had been
+  writing to since launch (silently failing because the table never
+  existed). Ships with RLS enabled from birth. Applied: **2026-04-22**.
