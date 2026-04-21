@@ -52,3 +52,26 @@ Don't dismiss it. Walk through:
   created the missing `feedback` table that `/api/feedback` had been
   writing to since launch (silently failing because the table never
   existed). Ships with RLS enabled from birth. Applied: **2026-04-22**.
+- [`supabase/003_harden_function_and_drop_policies.sql`](supabase/003_harden_function_and_drop_policies.sql)
+  — pinned `match_chunks` `search_path` to `public, pg_catalog`, and
+  dropped two leftover `USING (true)` policies on `qa_history` that the
+  linter correctly flagged as risky. Applied: **2026-04-22**.
+
+## Known / accepted warnings
+
+- **Extension in Public — `public.vector`**. The pgvector extension is
+  installed in the `public` schema because that was the Supabase default
+  when this project was created. Moving it would require dropping the
+  extension, which would drop the `vector` column type on
+  `transcript_chunks` and destroy all 50k+ embeddings. Not worth the
+  reingest. Accepted as-is.
+
+## Security posture (2026-04-22)
+
+- Supabase Security Advisor: **0 errors**, 1 accepted warning.
+- All three `public` tables have RLS enabled with no policies.
+- All three `public` tables have table privileges revoked from
+  `anon` and `authenticated` roles.
+- Every app query uses `SUPABASE_SERVICE_ROLE_KEY` server-side only.
+- No secrets in git; `.env.local` gitignored; no secrets in the client
+  bundle.
