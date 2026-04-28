@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { google } from "googleapis";
 import fs from "fs";
 import path from "path";
@@ -599,7 +599,15 @@ export async function POST(req: NextRequest) {
       const city = decodeURIComponent(req.headers.get("x-vercel-ip-city") ?? "unknown");
       const country = req.headers.get("x-vercel-ip-country") ?? "";
       const location = country ? `${city}, ${country}` : city;
-      logToSheet(`[OUT OF SYLLABUS] ${question.trim()}`, location).catch(() => {});
+      // Run after the response is sent — Vercel keeps the function alive
+      // until the after() callback resolves, so the Sheets write actually lands.
+      after(async () => {
+        try {
+          await logToSheet(`[OUT OF SYLLABUS] ${question.trim()}`, location);
+        } catch (err) {
+          console.error("Sheet log (OOS) failed:", err);
+        }
+      });
 
       return NextResponse.json({ outOfSyllabus: true, funUrl });
     }
@@ -648,11 +656,18 @@ export async function POST(req: NextRequest) {
       console.error("qa_history save exception:", err);
     }
 
-    // Log to Google Sheet (fire-and-forget)
+    // Log to Google Sheet — runs after the response is sent so the user
+    // doesn't wait, but Vercel keeps the function alive until it lands.
     const city = decodeURIComponent(req.headers.get("x-vercel-ip-city") ?? "unknown");
     const country = req.headers.get("x-vercel-ip-country") ?? "";
     const location = country ? `${city}, ${country}` : city;
-    logToSheet(question.trim(), location).catch((err) => console.error("Sheet log failed:", err?.message ?? err));
+    after(async () => {
+      try {
+        await logToSheet(question.trim(), location);
+      } catch (err) {
+        console.error("Sheet log failed:", err);
+      }
+    });
 
     return NextResponse.json({ ...parsed, id: historyId });
   } catch (error) {
